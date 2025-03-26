@@ -1,0 +1,254 @@
+{
+  "questions": [
+    {
+      "index": 1,
+      "section": "Section 1: General Information",
+      "question_number": "1.1",
+      "question_text": "Vessel’s name as it appears on the Certificate of Registry: (M)",
+      "possible_answers": null,
+      "guide_to_inspection": ""
+    },
+    {
+      "index": 2,
+      "section": "Section 1: General Information",
+      "question_number": "1.2",
+      "question_text": "Vessel’s IMO Number: (M)",
+      "possible_answers": null,
+      "guide_to_inspection": ""
+    },
+    {
+      "index": 3,
+      "section": "Section 1: General Information",
+      "question_number": "1.3",
+      "question_text": "Flag: (M)",
+      "possible_answers": null,
+      "guide_to_inspection": ""
+    },
+    {
+      "index": 4,
+      "section": "Section 1: General Information",
+      "question_number": "1.4",
+      "question_text": "Date the vessel was delivered: (M)",
+      "possible_answers": null,
+      "guide_to_inspection": "Date of delivery can be found either in form A of the International Oil Pollution Prevention (IOPP) Certificate or Safety Construction Certificate."
+    },
+    {
+      "index": 5,
+      "section": "Section 1: General Information",
+      "question_number": "1.5",
+      "question_text": "Date of layup, if any greater than three months since vessel’s delivery: N/A",
+      "possible_answers": ["N/A"],
+      "guide_to_inspection": "If the vessel is out of service for 3 months or more, record the date; otherwise, this question should be answered N/A."
+    },
+    {
+      "index": 6,
+      "section": "Section 1: General Information",
+      "question_number": "1.6",
+      "question_text": "Maximum assigned deadweight (metric tonnes):",
+      "possible_answers": null,
+      "guide_to_inspection": ""
+    },
+    {
+      "index": 7,
+      "section": "Section 1: General Information",
+      "question_number": "1.7",
+      "question_text": "Vessel type: (M)",
+      "possible_answers": [
+        "Bulk carrier - carrying solid bulk cargos other than grain",
+        "Bulk carrier - carrying grain cargos",
+        "General cargo ship - carrying general and/or container cargos",
+        "Container ship - carrying container cargos"
+      ],
+      "guide_to_inspection": ""
+    },
+    {
+      "index": 8,
+      "section": "Section 1: General Information",
+      "question_number": "1.8",
+      "question_text": "Hull type: (M)",
+      "possible_answers": [
+        "Double Bottom-Single Skin Side",
+        "Double Hull"
+      ],
+      "guide_to_inspection": ""
+    },
+    {
+      "index": 9,
+      "section": "Section 1: General Information",
+      "question_number": "1.9",
+      "question_text": "Vessel’s operation at the time of inspection:",
+      "possible_answers": [
+        "Loading",
+        "Discharging",
+        "Bunkering",
+        "At anchor",
+        "Idle",
+        "In dry dock / shipyard",
+        "At sea/river transit",
+        "Repairs afloat"
+      ],
+      "guide_to_inspection": ""
+    },
+    {
+      "index": 10,
+      "section": "Section 1: General Information",
+      "question_number": "1.10",
+      "question_text": "Name of cargo being handled: N/A",
+      "possible_answers": ["N/A"],
+      "guide_to_inspection": "This question should be answered N/A when the vessel is in ballast condition. Refer to shipper declaration and/or dangerous goods declaration to determine the correct name of the cargo."
+    },
+    {
+      "index": 11,
+      "section": "Section 1: General Information",
+      "question_number": "1.11",
+      "question_text": "Details of Port State Control inspection history for the last 12 months: (M) N/A",
+      "possible_answers": ["N/A"],
+      "guide_to_inspection": "Inspector shall record the summary of significant deficiencies and, if the vessel was detained, detainable deficiencies. The records of Port State inspection should be retained on board for at least two years. If the vessel’s name and/or the vessel’s manager changed after the inspection, record the name of the vessel and/or vessel’s manager at the time of inspection."
+    },
+    {
+      "index": 12,
+      "section": "Section 1: General Information",
+      "question_number": "1.12",
+      "question_text": "Name of classification society: (M)",
+      "possible_answers": [
+        "IACS- Classification Society",
+        "Non-IACS- Classification Society"
+      ],
+      "guide_to_inspection": "If the vessel has dual class, select the name of the classification society issuing the statutory certificates from the drop-down list and the name of the second society in comments. If the vessel has changed class within the past 6 months, record the previous classification society and the date of change as a comment."
+    },
+    {
+      "index": 13,
+      "section": "Section 1: General Information",
+      "question_number": "1.13",
+      "question_text": "Expiry date of class certificate: (M)",
+      "possible_answers": null,
+      "guide_to_inspection": ""
+    },
+    {
+      "index": 14,
+      "section": "Section 1: General Information",
+      "question_number": "1.14",
+      "question_text": "Date the last Special Survey was completed: (M) N/A",
+      "possible_answers": ["N/A"],
+      "guide_to_inspection": ""
+    },
+    {
+      "index": 15,
+      "section": "Section 1: General Information",
+      "question_number": "1.15",
+      "question_text": "Date of last routine dry dock: (M) N/A",
+      "possible_answers": ["N/A"],
+      "guide_to_inspection": ""
+    },
+    {
+      "index": 16,
+      "section": "Section 1: General Information",
+      "question_number": "1.16",
+      "question_text": "Date of unscheduled repair / and or dry dock: (M) N/A",
+      "possible_answers": ["N/A"],
+      "guide_to_inspection": "Record the reason for unscheduled repair and/or dry dock."
+    },
+    {
+      "index": 17,
+      "section": "Section 1: General Information",
+      "question_number": "1.17",
+      "question_text": "EEDI: (M) N/A",
+      "possible_answers": ["N/A"],
+      "guide_to_inspection": "Inspector shall record the Attained EEDI and EEXI from the Class Supplement to the International Energy Efficiency Certificate (IEEC)."
+    },
+    {
+      "index": 18,
+      "section": "Section 1: General Information",
+      "question_number": "1.18",
+      "question_text": "Date of last Flag inspection: (M) N/A",
+      "possible_answers": ["N/A"],
+      "guide_to_inspection": "Inspector shall record the summary of significant deficiencies. Not all flag states require an annual inspection to be performed on the vessel."
+    },
+    {
+      "index": 19,
+      "section": "Section 1: General Information",
+      "question_number": "1.19",
+      "question_text": "Name of the vessel’s manager: (M)",
+      "possible_answers": null,
+      "guide_to_inspection": "The name of the vessel’s manager is recorded in the vessel’s Document of Compliance."
+    },
+    {
+      "index": 20,
+      "section": "Section 1: General Information",
+      "question_number": "1.20",
+      "question_text": "Date the current vessel’s manager took over the vessel:",
+      "possible_answers": null,
+      "guide_to_inspection": "The date of the vessel’s manager taking over the vessel is recorded in the Continuous Synopsis Record."
+    },
+    {
+      "index": 21,
+      "section": "Section 1: General Information",
+      "question_number": "1.21",
+      "question_text": "Dates of last two visits of the ship’s manager: (M)",
+      "possible_answers": [
+        "1st Visit: N/A",
+        "2nd Visit: N/A"
+      ],
+      "guide_to_inspection": "Record the position of the ship’s manager attending, e.g., Marine Superintendent, Engineer Superintendent or Naval Architect."
+    },
+    {
+      "index": 22,
+      "section": "Section 1: General Information",
+      "question_number": "1.22",
+      "question_text": "Name of the Rightship inspector:",
+      "possible_answers": null,
+      "guide_to_inspection": ""
+    },
+    {
+      "index": 23,
+      "section": "Section 1: General Information",
+      "question_number": "1.23",
+      "question_text": "Port of inspection: (V)",
+      "possible_answers": null,
+      "guide_to_inspection": ""
+    },
+    {
+      "index": 24,
+      "section": "Section 1: General Information",
+      "question_number": "1.24",
+      "question_text": "Date and time Rightship Inspector arrived at the vessel: (V)",
+      "possible_answers": null,
+      "guide_to_inspection": ""
+    },
+    {
+      "index": 25,
+      "section": "Section 1: General Information",
+      "question_number": "1.25",
+      "question_text": "Date and time Rightship inspector left the vessel: (V)",
+      "possible_answers": null,
+      "guide_to_inspection": "Record the arrival and departure time/dates for each session of the inspection or when the inspection was carried out by more than one inspector."
+    },
+    {
+      "index": 26,
+      "section": "Section 1: General Information",
+      "question_number": "1.26",
+      "question_text": "Total time taken for inspection: (V)",
+      "possible_answers": null,
+      "guide_to_inspection": ""
+    },
+    {
+      "index": 27,
+      "section": "Section 1: General Information",
+      "question_number": "1.27",
+      "question_text": "Date the inspection was completed: (V)",
+      "possible_answers": null,
+      "guide_to_inspection": "Record the actual time of inspection and exclude suspension of inspection for any reason, e.g., meals, PSC inspection, etc."
+    },
+    {
+      "index": 28,
+      "section": "Section 1: General Information",
+      "question_number": "1.28",
+      "question_text": "Name of the ship’s P&I club: (M)",
+      "possible_answers": [
+        "International Group of P&I",
+        "Non-International Group of P&I"
+      ],
+      "guide_to_inspection": "The current list of P&I Clubs that are members of the International Group is provided below.\n > American Steamship Owners Mutual Protection and Indemnity Association, Inc.\n > American Club (Europe)\n > The Britannia Steam Ship Insurance Association Limited\n > The Britannia Steam Ship Insurance Association Europe\n > Gard P.&I. (Bermuda) Limited\n > Assuranceforeningen Gard (Gjensidig)\n > The Japan Ship Owners’ Mutual Protection & Indemnity Association\n > The London Steam-Ship Owners’ Mutual Insurance Association Limited\n > The London P&I Insurance Company (Europe) Limited\n > NorthStandard Limited\n > NorthStandard EU DAC\n > The Standard Club UK Ltd\n > The Standard Club Asia Ltd\n > The Standard Club Ireland DAC\n > The Shipowners’ Mutual Protection & Indemnity Association (Luxembourg)\n > Assuranceforeningen Skuld (Gjensidig)\n > Skuld Mutual Protection and Indemnity Association (Bermuda) Ltd.\n > The Steamship Mutual Underwriting Association (Bermuda) Limited\n > Steamship Mutual Underwriting Association Ltd.\n > Steamship Mutual Underwriting Association (Europe) Limited\n > Sveriges Ångfartygs Assurans Förening / The Swedish Club\n > The United Kingdom Mutual Steam Ship Assurance Association Limited\n > UK P&I (Bermuda)\n > UK P&I (UKNV)\n > The West of England Ship Owners Mutual Insurance Association (Luxembourg)"
+    }
+  ]
+}
