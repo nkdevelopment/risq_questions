@@ -12,6 +12,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -28,9 +29,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.core.content.FileProvider
 import nkdevelopment.net.sire_questions.ui.theme.InspectionAppTheme
 import com.google.gson.Gson
@@ -47,11 +51,13 @@ class SectionActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val sectionId = intent.getIntExtra("SECTION_ID", 1)
+        val inspectionName = intent.getStringExtra("INSPECTION_NAME")
 
         setContent {
             InspectionAppTheme {
                 SectionScreen(
                     sectionId = sectionId,
+                    inspectionName = inspectionName,
                     onBackClicked = { finish() },
                     context = this
                 )
@@ -62,7 +68,12 @@ class SectionActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SectionScreen(sectionId: Int, onBackClicked: () -> Unit, context: Context) {
+fun SectionScreen(
+    sectionId: Int,
+    inspectionName: String? = null,
+    onBackClicked: () -> Unit,
+    context: Context
+) {
     val coroutineScope = rememberCoroutineScope()
     val sectionJsonFileName = "section_${sectionId}.json"
 
@@ -109,7 +120,18 @@ fun SectionScreen(sectionId: Int, onBackClicked: () -> Unit, context: Context) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Section $sectionId Questions", color = Color.White) },
+                title = {
+                    Column {
+                        Text("Section $sectionId Questions", color = Color.White)
+                        if (!inspectionName.isNullOrBlank()) {
+                            Text(
+                                text = inspectionName,
+                                color = Color.White.copy(alpha = 0.8f),
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary
                 ),
@@ -134,12 +156,37 @@ fun SectionScreen(sectionId: Int, onBackClicked: () -> Unit, context: Context) {
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
-                Text(
-                    text = sections.find { it.id == sectionId }?.title ?: "Section $sectionId",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = SectionData.sections.find { it.id == sectionId }?.title ?: "Section $sectionId",
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    // Display inspection name if available
+                    if (!inspectionName.isNullOrBlank()) {
+                        Card(
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer
+                            ),
+                            shape = RoundedCornerShape(4.dp)
+                        ) {
+                            Text(
+                                text = inspectionName,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
 
                 if (questions.isEmpty()) {
                     Box(
@@ -186,6 +233,7 @@ fun SectionScreen(sectionId: Int, onBackClicked: () -> Unit, context: Context) {
                                         sectionId,
                                         questions,
                                         answers,
+                                        inspectionName,
                                         onPdfCreated = { filePath ->
                                             pdfFilePath = filePath
                                             showOpenPdfDialog = true
@@ -239,8 +287,6 @@ fun SectionScreen(sectionId: Int, onBackClicked: () -> Unit, context: Context) {
                     ) {
                         Text("Debug Info", fontSize = 16.sp)
                     }
-
-
                 }
             }
 
@@ -479,6 +525,7 @@ suspend fun exportToPdf(
     sectionId: Int,
     questions: List<Question>,
     answers: Map<String, String>,
+    inspectionName: String? = null,
     onPdfCreated: (String) -> Unit  // Callback that will be called with the file path
 ) {
     withContext(Dispatchers.IO) {
@@ -499,7 +546,7 @@ suspend fun exportToPdf(
             // Title
             paint.textSize = 18f
             paint.isFakeBoldText = true
-            val sectionTitle = sections.find { it.id == sectionId }?.title ?: "Unknown Section"
+            val sectionTitle = SectionData.sections.find { it.id == sectionId }?.title ?: "Unknown Section"
             canvas.drawText("Section $sectionId: $sectionTitle", 50f, 50f, paint)
             Log.d("PDF Export", "Drew section title")
 
@@ -509,8 +556,17 @@ suspend fun exportToPdf(
             val dateFormat = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault())
             canvas.drawText("Date: ${dateFormat.format(Date())}", 50f, 80f, paint)
 
-            // Questions and Answers
+            // Include inspection name in the PDF if available
             var yPosition = 120f
+            if (!inspectionName.isNullOrBlank()) {
+                paint.textSize = 14f
+                paint.isFakeBoldText = true
+                canvas.drawText("Inspection Name: $inspectionName", 50f, 100f, paint)
+                paint.isFakeBoldText = false
+                yPosition = 140f // Adjust starting position for questions
+            }
+
+            // Questions and Answers
             var pageNum = 1
 
             questions.forEachIndexed { index, question ->
@@ -587,7 +643,14 @@ suspend fun exportToPdf(
 
             // Save the document
             val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-            val fileName = "section_${sectionId}_inspection_${timestamp}.pdf"
+
+            // Update the filename to include inspection name if available
+            val inspectionNamePart = if (!inspectionName.isNullOrBlank())
+                "_${inspectionName.replace(" ", "_")}"
+            else
+                ""
+
+            val fileName = "section_${sectionId}${inspectionNamePart}_inspection_${timestamp}.pdf"
 
             // First try to save to app's private storage (most reliable)
             val directory = context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
@@ -642,6 +705,7 @@ suspend fun exportToPdf(
         }
     }
 }
+
 // Data Classes
 data class QuestionnaireData(
     val questions: List<Question>

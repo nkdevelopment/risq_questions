@@ -42,5 +42,9 @@
             android:name=".SectionActivity"
             android:exported="false"
             android:theme="@style/Theme.SIRE_Questions" />
+        <activity
+            android:name=".NewInspectionActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SIRE_Questions" />
     </application>
 </manifest>
