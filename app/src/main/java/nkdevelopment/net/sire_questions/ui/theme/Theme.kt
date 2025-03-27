@@ -10,69 +10,68 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val LightColors = lightColorScheme(
-    primary = Color(0xFF1976D2),
-    onPrimary = Color.White,
-    primaryContainer = Color(0xFFBBDEFB),
-    onPrimaryContainer = Color(0xFF0D47A1),
-    secondary = Color(0xFF26A69A),
-    onSecondary = Color.White,
-    secondaryContainer = Color(0xFFB2DFDB),
-    onSecondaryContainer = Color(0xFF004D40),
-    tertiary = Color(0xFF7B1FA2),
-    onTertiary = Color.White,
-    tertiaryContainer = Color(0xFFE1BEE7),
-    onTertiaryContainer = Color(0xFF4A148C),
-    error = Color(0xFFD32F2F),
-    onError = Color.White,
-    errorContainer = Color(0xFFFFCDD2),
-    onErrorContainer = Color(0xFFB71C1C),
-    background = Color(0xFFF5F5F5),
-    onBackground = Color(0xFF212121),
-    surface = Color.White,
-    onSurface = Color(0xFF212121),
-    surfaceVariant = Color(0xFFEEEEEE),
-    onSurfaceVariant = Color(0xFF757575),
-    outline = Color(0xFFBDBDBD)
+    primary = Primary,
+    onPrimary = OnPrimary,
+    primaryContainer = PrimaryLight,
+    onPrimaryContainer = PrimaryDark,
+    secondary = Secondary,
+    onSecondary = OnSecondary,
+    secondaryContainer = SecondaryLight,
+    onSecondaryContainer = SecondaryDark,
+    tertiary = Accent,
+    onTertiary = OnPrimary,
+    tertiaryContainer = AccentLight,
+    onTertiaryContainer = AccentDark,
+    error = Error,
+    onError = OnPrimary,
+    errorContainer = Error.copy(alpha = 0.1f),
+    onErrorContainer = Error,
+    background = Background,
+    onBackground = OnBackground,
+    surface = Surface,
+    onSurface = OnSurface,
+    surfaceVariant = Background.copy(alpha = 0.7f),
+    onSurfaceVariant = OnBackground.copy(alpha = 0.7f),
+    outline = OnBackground.copy(alpha = 0.3f)
 )
 
 private val DarkColors = darkColorScheme(
-    primary = Color(0xFF90CAF9),
-    onPrimary = Color(0xFF0D47A1),
-    primaryContainer = Color(0xFF1565C0),
-    onPrimaryContainer = Color(0xFFBBDEFB),
-    secondary = Color(0xFF80CBC4),
-    onSecondary = Color(0xFF004D40),
-    secondaryContainer = Color(0xFF00796B),
-    onSecondaryContainer = Color(0xFFB2DFDB),
-    tertiary = Color(0xFFCE93D8),
-    onTertiary = Color(0xFF4A148C),
-    tertiaryContainer = Color(0xFF7B1FA2),
-    onTertiaryContainer = Color(0xFFE1BEE7),
-    error = Color(0xFFEF9A9A),
-    onError = Color(0xFFB71C1C),
-    errorContainer = Color(0xFFD32F2F),
-    onErrorContainer = Color(0xFFFFCDD2),
-    background = Color(0xFF121212),
-    onBackground = Color(0xFFEEEEEE),
-    surface = Color(0xFF212121),
-    onSurface = Color(0xFFEEEEEE),
-    surfaceVariant = Color(0xFF424242),
-    onSurfaceVariant = Color(0xFFBDBDBD),
-    outline = Color(0xFF757575)
+    primary = PrimaryLight,
+    onPrimary = PrimaryDark,
+    primaryContainer = Primary,
+    onPrimaryContainer = PrimaryLight,
+    secondary = SecondaryLight,
+    onSecondary = SecondaryDark,
+    secondaryContainer = Secondary,
+    onSecondaryContainer = SecondaryLight,
+    tertiary = AccentLight,
+    onTertiary = AccentDark,
+    tertiaryContainer = Accent,
+    onTertiaryContainer = AccentLight,
+    error = Error.copy(alpha = 0.8f),
+    onError = OnPrimary,
+    errorContainer = Error.copy(alpha = 0.2f),
+    onErrorContainer = Error.copy(alpha = 0.8f),
+    background = BackgroundDark,
+    onBackground = OnBackgroundDark,
+    surface = SurfaceDark,
+    onSurface = OnSurfaceDark,
+    surfaceVariant = SurfaceDark.copy(alpha = 0.7f),
+    onSurfaceVariant = OnSurfaceDark.copy(alpha = 0.7f),
+    outline = OnSurfaceDark.copy(alpha = 0.3f)
 )
 
 @Composable
 fun InspectionAppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = false,
+    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

@@ -49,8 +49,9 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    // Add this to your dependencies block in build.gradle.kts
+    implementation(libs.androidx.material.icons.extended)
     implementation(libs.gson)
+    // Add to your dependencies in build.gradle.kts
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
