@@ -1,0 +1,228 @@
+{
+  "questions": [
+    {
+      "index": 1,
+      "section": "Section 3: Navigation",
+      "question_number": "3.1",
+      "question_text": "Is practical guidance on navigational safety incorporated in the vessel manager’s navigation instructions/procedures and are officers familiar with the company’s navigation procedures? (V)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "Masters, Officers, and Engineers should be familiar with the utilisation of the override function of engine power limiters. They should also understand that the activation of this override may be necessary while navigating in pilotage waters.\n\nThe practical guidance on navigational safety shall include the following:\n> Allocation of bridge watch keeping duties and responsibilities.\n> Procedures for passage planning and navigation, including departures from the passage plan.\n> Chart and nautical publication update and correction procedures.\n> ECDIS procedure (including chart and software updates).\n> Procedures to ensure that all essential navigation equipment and main and auxiliary machinery are available and fully operational.\n> Ship position reporting procedures.\n> Accident and near miss reporting procedures.\n> Recording of relevant events and Voyage Data Recorder (VDR) policy.\n> Use of Bridge Navigational Watch Alarm System (BNWAS) modes (automatic, manual, on and off) and procedures for ensuring correct operation.\n> Bridge access and distraction prevention procedures.\n> Procedures for familiarisation and effective handover when crew changes occur.\n> Training and drill requirements.\n> A system for identifying particular training needs.\n> A procedure for when to call the Master to the bridge.\n\nThe ECDIS procedure should include detailed guidance on voyage planning, watch-keeping, chart maintenance, alarm settings, and backup arrangements.\n\n(ECDIS LTD, 2019)"
+    },
+    {
+      "index": 2,
+      "section": "Section 3: Navigation",
+      "question_number": "3.2",
+      "question_text": "Are the requirements of the Master’s standing orders explained to the deck officers and are bridge order books (Night Order) being completed by the Master and countersigned by the officers? (V & M)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "Record a Finding if the details (such as visibility criteria, calling the Master, minimum CPA and ECDIS display layers) are not incorporated in the Master’s standing orders. The Master should clearly outline potential safety risks, ensure that orders are documented in the bridge order book, and that orders are read, signed, and available for reference.\n\n(Bridge Procedures Guide, 2022)\n\nAIS information overlaid on ECDIS should be used for identification rather than collision avoidance."
+    },
+    {
+      "index": 3,
+      "section": "Section 3: Navigation",
+      "question_number": "3.3",
+      "question_text": "Is the manoeuvring information for the vessel displayed on the bridge and are bridge logbooks, bell book, radar performance book, and Change of Watch at Sea checklist being correctly maintained? (V)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "The OOW should be aware of the differences between X-Band and S-Band radars, including their performance limitations. Navigational data such as manoeuvring characteristics should be recorded in the Pilot Card, Wheelhouse Poster, and manoeuvring booklet. Records must be maintained either in the ship’s logbook or in another approved format.\n\n(Bridge Procedures Guide, 2022)"
+    },
+    {
+      "index": 4,
+      "section": "Section 3: Navigation",
+      "question_number": "3.4",
+      "question_text": "Have operational checks on navigational equipment been done and are checklists being effectively completed when preparing for sea and prior to port entry? (V)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "Operational checks should be conducted as per the Bridge Procedures Guide (e.g., checklists C2.1, C2.6, C2.7) and recorded. Ensure that full control of engine and steering functions is verified before entering restricted or coastal waters.\n\n(Bridge Procedures Guide, 2022)"
+    },
+    {
+      "index": 5,
+      "section": "Section 3: Navigation",
+      "question_number": "3.5",
+      "question_text": "Are there records indicating that routine tests and checks of bridge equipment are being undertaken regularly? (V)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "Daily tests and checks must include manual steering tests, gyro and magnetic compass error checks, and synchronization of compass repeaters. All electronic positioning systems should be cross-verified. Check that built-in test functions and configuration settings are regularly reviewed.\n\n(Bridge Procedures Guide, 2022)"
+    },
+    {
+      "index": 6,
+      "section": "Section 3: Navigation",
+      "question_number": "3.6",
+      "question_text": "Has the Master/Pilot information exchange been taking place effectively and is the standard pilot card being completed as required? (V)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "Record the time of the Master/Pilot exchange. The pilot card should indicate whether a power limiter is engaged, the override time required, and the vessel’s power capacity with and without the limiter. The exchange should cover details regarding the vessel’s characteristics, pilot intentions, and any necessary contingency information.\n\n(Bridge Procedures Guide, 2022)"
+    },
+    {
+      "index": 7,
+      "section": "Section 3: Navigation",
+      "question_number": "3.7",
+      "question_text": "Does the vessel’s manager produce a guideline for under keel clearance and air draft clearance? (M)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "Verify that the guidelines include calculation methods for Dynamic Under Keel Clearance (DUKC), defined minimum clearances for coastal and river navigation, and air draft limits. The guidelines should take CATZOC values into account and refer to authoritative publications (e.g., UKHO NP 5012 or Bridge Procedures Guide figures).\n\n(Bridge Procedures Guide, 2022)"
+    },
+    {
+      "index": 8,
+      "section": "Section 3: Navigation",
+      "question_number": "3.8",
+      "question_text": "Are the fire and safety rounds being conducted at the end of each watch? (V)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "Ensure that no other activities interfere with proper look-out duties. Fire patrols should be conducted regularly, especially in areas without a fire detection system, and the officer of the watch should not serve as the sole look-out during dark hours.\n\n(Bridge Procedures Guide, 2022)"
+    },
+    {
+      "index": 9,
+      "section": "Section 3: Navigation",
+      "question_number": "3.9",
+      "question_text": "Does the manning level in the bridge at all stages of the voyage and at anchor meet or exceed that required by the Bridge Manning Matrix and are lookout arrangements adequate? (V)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "The Bridge Manning Matrix should be posted on the bridge. Although under certain conditions the OOW may be the sole look-out, clear guidance on sole look-out procedures must be included in the SMS.\n\n(Bridge Procedures Guide, 2022)"
+    },
+    {
+      "index": 10,
+      "section": "Section 3: Navigation",
+      "question_number": "3.10",
+      "question_text": "Is navigation equipment in good order? (V)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "Record a Finding if any navigational equipment (e.g., radar magnetron) is not maintained as per manufacturer recommendations. Equipment must comply with SOLAS Chapter V Regulation 19 and be verified as operational during random checks."
+    },
+    {
+      "index": 11,
+      "section": "Section 3: Navigation",
+      "question_number": "3.11",
+      "question_text": "Are navigation lights, emergency navigation lights, shapes and signalling equipment in working order? (V)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "The officer of the watch should confirm that all navigation lights, emergency lights, flags, and shapes are operational and ready for use. A procedure for testing navigation light failure alarms should be posted on the bridge. Spare bulbs and battery packs must be available.\n\n(PERFORMANCE STANDARDS FOR DAYLIGHT SIGNALLING LAMPS, 2000)"
+    },
+    {
+      "index": 12,
+      "section": "Section 3: Navigation",
+      "question_number": "3.12",
+      "question_text": "Was the Bridge Navigational Watch Alarm System operational when the ship was underway and at anchor, and were required tests conducted and recorded accordingly? (V)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "The BNWAS should be operational during both underway and anchored conditions. Its mode settings, alarm tests, and any detected failures (e.g., due to power supply issues) must be recorded. The system should be secured and, if possible, powered by both the main supply and a battery backup.\n\n(Resolution MSC.128 (75) Performance Standard For a BNWAS, 2002)"
+    },
+    {
+      "index": 13,
+      "section": "Section 3: Navigation",
+      "question_number": "3.13",
+      "question_text": "Where fitted are the standard magnetic compass, gyro compass and Global Navigation Satellite System compass, are they operational, adjusted and properly maintained? (V & M)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "Record a Finding if the gyro compass is not serviced per manufacturer recommendations. The magnetic compass should be installed for optimal readability and corrected for errors if used to provide heading outputs. A deviation card must be maintained, and adjustments should be performed as required, especially after major modifications.\n\nThe gyro should run continuously and support all repeaters, with regular checks. GNSS compasses are required on vessels navigating in polar regions.\n\n(BS ISO 25862:2019, 2019)"
+    },
+    {
+      "index": 14,
+      "section": "Section 3: Navigation",
+      "question_number": "3.14",
+      "question_text": "Where manual steering is engaged, is the change over from auto steering, and vice versa, recorded? (V)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "Record the time and location of the changeover between manual and automatic steering in the deck logbook or bell book. Manual steering should be used in conditions such as high traffic, restricted visibility, or other hazardous situations, and should be tested once per watch.\n\n(Bridge Procedures Guide, 2022)"
+    },
+    {
+      "index": 15,
+      "section": "Section 3: Navigation",
+      "question_number": "3.15",
+      "question_text": "Are deck officers familiar with the procedure to preserve the VDR data in the event of an incident and is there a company policy within the SMS relating to the playback of VDR data? (V)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "Deck officers must know the procedures for preserving VDR data. There should be a documented company policy regarding VDR playback to help analyse performance. Testing should be performed annually and after any repair or maintenance on the VDR.\n\n(Bridge Procedures Guide, 2022)"
+    },
+    {
+      "index": 16,
+      "section": "Section 3: Navigation",
+      "question_number": "3.16",
+      "question_text": "Is a chart and publication management system being implemented to ensure that all charts, nautical publications, and other publications on board are current, maintained and up to date? (V & M)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "A shore-based support service should be in place to maintain up-to-date ENCs, paper charts, and marine publications. The system must document licensing arrangements, chart corrections, and updates. Officers should have access to the Weekly Notice to Mariners and related documentation.\n\n(Admiralty Guide to ECDIS Implementation, Policy and Procedures, 2016)"
+    },
+    {
+      "index": 17,
+      "section": "Section 3: Navigation",
+      "question_number": "3.17",
+      "question_text": "Were appropriate charts and publications used for the previous voyage? (V)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "The vessel should have used the largest scale ENCs available for each stage of the voyage. Only up-to-date official charts and publications should be used. For coastal or pilotage planning, large scale charts are required, and photocopied charts do not meet SOLAS requirements.\n\n(Recommendations on Usage of ECDIS and Preventing Incident, 2020)"
+    },
+    {
+      "index": 18,
+      "section": "Section 3: Navigation",
+      "question_number": "3.18",
+      "question_text": "Can the Master and watch-keeping officer demonstrate a familiarity with the use of ECDIS? (V)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "Both the Master and the watch-keeping officer should demonstrate practical competency with ECDIS. This includes setting safety frames, planning routes, checking ENC updates, and managing alarms. They should also be familiar with contingency procedures if ECDIS fails."
+    },
+    {
+      "index": 19,
+      "section": "Section 3: Navigation",
+      "question_number": "3.19",
+      "question_text": "Is the ECDIS of an approved type and does it meet the SOLAS requirement? (M)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "ECDIS must be type approved, use up-to-date ENCs, be maintained to current IHO standards, and have independent backup arrangements. The inspector should verify the ECDIS’s compliance with SOLAS regulation V/18 and check for available spare parts as recommended by the manufacturer.\n\n(MSC.1/Circ.1503/Rev.1, ECDIS – GUIDANCE FOR GOOD PRACTICE, 2017)"
+    },
+    {
+      "index": 20,
+      "section": "Section 3: Navigation",
+      "question_number": "3.20",
+      "question_text": "Are T&P NMs and navigation warnings being used correctly in voyage planning and monitoring? (V)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "Navigation warning information should be current and displayed either automatically or manually on the ECDIS. Officers must verify the accuracy of T&P NMs using available overlays or imported updates. The Admiralty Information Overlay (AIO) may be used as an additional tool.\n\n(Recommendations on Usage of ECDIS and Preventing Incident, 2020)"
+    },
+    {
+      "index": 21,
+      "section": "Section 3: Navigation",
+      "question_number": "3.21",
+      "question_text": "Has the vessel been safely navigated in compliance with international and inland regulations? (V)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "Inspect the ENC/charts from the previous voyage for safe navigation. Consider factors such as chart scale, weather recording, environmental compliance, safety settings, proper bridge manning, periodic position fixing, and adherence to NAVAREA warnings.\n\n(Recommendations on Usage of ECDIS and Preventing Incident, 2020)"
+    },
+    {
+      "index": 22,
+      "section": "Section 3: Navigation",
+      "question_number": "3.22",
+      "question_text": "Are records available to show that the echo-sounder recorder is being switched on prior to each approach to shallow water, port entry and departure and has the echo sounder remained in operation while the vessel transits in shallow waters? (V)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "The echo sounder must be used when approaching landfall and in coastal/pilotage waters. Its readings (with correct units) and alarms should be active and recorded on the recorder chart. Verify that the depth alarm is set appropriately relative to the vessel’s draft."
+    },
+    {
+      "index": 23,
+      "section": "Section 3: Navigation",
+      "question_number": "3.23",
+      "question_text": "Was the berth-to-berth passage plan of the previous voyage comprehensive and approved by the Master? (V)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "The passage plan should cover all aspects of the voyage including parallel indexing, chart changes, position fixing methods, no-go areas, traffic and environmental considerations, and contingency procedures. The plan must be approved by the Master and recorded in both paper and/or ECDIS formats."
+    },
+    {
+      "index": 24,
+      "section": "Section 3: Navigation",
+      "question_number": "3.24",
+      "question_text": "Have the parallel index techniques been used when monitoring the passage in coastal and pilotage waters, particularly in conditions of restricted visibility or at night? (V)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": ""
+    },
+    {
+      "index": 25,
+      "section": "Section 3: Navigation",
+      "question_number": "3.25",
+      "question_text": "Was the track of the ship monitored at sea and during the pilotage? (V)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": ""
+    },
+    {
+      "index": 26,
+      "section": "Section 3: Navigation",
+      "question_number": "3.26",
+      "question_text": "Is the  Global Navigation Satellite System (GNSS) set to the correct Geodetic Datum, and are officers aware  of the errors and alarms associated with GNSS?",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": ""
+    },
+    {
+      "index": 27,
+      "section": "Section 3: Navigation",
+      "question_number": "3.27",
+      "question_text": "Does the vessel utilise a weather routeing service? (V)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": ""
+    },
+    {
+      "index": 28,
+      "section": "Section 3: Navigation",
+      "question_number": "3.28",
+      "question_text": "Are there procedures in place to limit the use of cell phones, personal electronic devices, the internet, and  email on the bridge?",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": ""
+    }
+  ]
+}

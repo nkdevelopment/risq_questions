@@ -1,0 +1,108 @@
+{
+  "questions": [
+    {
+      "index": 1,
+      "section": "Section 2: Certification and personnel management",
+      "question_number": "2.1",
+      "question_text": "Is the latest Class Survey Status available and are all statutory certificates listed in the Class Survey Status valid, and is the vessel free of condition of class or significant recommendations and are all classification and statutory surveys not overdue?",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "The PDF copy of the class survey status that was evaluated during the inspection shall be attached to the inspection report by the inspector. Record a Finding if the vessel has any condition of class, significant recommendation, and memorandum.\n\nThe class survey status shall be available on board and should be dated not more than seven (7) days prior to the date of the inspection. Record a Finding if an up-to-date class survey status was not available on board."
+    },
+    {
+      "index": 2,
+      "section": "Section 2: Certification and personnel management",
+      "question_number": "2.2",
+      "question_text": "Has the vessel been provided with certificates of financial security for seafarers? (M)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "From 18 January 2017, all ships which are subject to MLC have been required to carry and display on board two certificates confirming that financial security is in place for:\n\n(a) shipowners’ liabilities for repatriation of crew, essential needs such as food, accommodation, medical care and up to four months’ outstanding contractual wages and entitlements in the event of abandonment (Regulation 2.5, Standard A2.5.2 Paragraph 9)\n\n(b) contractual payments for death or long-term disability due to an occupational injury, illness or hazard set out in the employment agreement or collective agreement (Regulation 4.2, Standard A4.2.1 paragraph 1(b))\n\n(FAQs: Maritime Labour Convention 2006 As Amended Financial Security Requirements - The Shipowners’ Club, 2020)"
+    },
+    {
+      "index": 3,
+      "section": "Section 2: Certification and personnel management",
+      "question_number": "2.3",
+      "question_text": "Can all crew communicate effectively in the working language of the ship? (V)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "Record the common language and the level of English proficiency of the crew on board the vessel.\n\nOn all ships, to ensure effective crew performance in safety matters, a working language shall be established and recorded in the ship’s logbook. The company, as defined in regulation IX/1, or the Master, as appropriate, shall determine the appropriate working language. Each seafarer shall be required to understand and, where appropriate, give orders and instructions and to report back in that language. If the working language is not an official language of the State whose Flag the ship is entitled to fly, all plans and lists required to be posted shall include a translation into the working language.\n\nOn ships to which SOLAS chapter I applies, English must be used on the bridge as the working language for bridge-to-bridge and bridge-to-shore safety communications as well as for communications on board between the pilot and bridge watchkeeping personnel, unless those directly involved in the communication speak a common language other than English.\n\n(SOLAS 74, 2020)"
+    },
+    {
+      "index": 4,
+      "section": "Section 2: Certification and personnel management",
+      "question_number": "2.4",
+      "question_text": "Is the vessel’s manning in compliance with the Safe Manning Certificate? (V)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "Record in comments the actual and required manning of the vessel. Minimum safe manning is the level of manning that will ensure that a ship is sufficiently, effectively, and efficiently manned to provide safety and security of the ship, safe navigation and operations at sea, safe operations in port, prevention of human injury or loss of life, the avoidance of damage to the marine environment and property, and to ensure the welfare and health of seafarers through the avoidance of fatigue.\n\nExcept in ships of limited size or propulsion power (which are not quantified), the determination of the minimum safe manning level should also consider the provision of qualified officers to ensure that it is not necessary for the Master or Chief Engineer to keep regular watches by adopting a three-watch system.\n\n(PRINCIPLES OF SAFE MANNING, IMO Resolution 1047(27) , 2000)\n\nInspectors should review the crew list and, considering the level of operation at sea and port, assess if there are enough personnel on board to fulfil the following principles of safe manning:\n> Maintain safe navigation by adequate manning of bridge throughout the passage.\n> Mooring, tending mooring at port and unmooring the ship safely.\n> Effective performance of cargo operation to ensure safe carriage of cargo during transit.\n> Performance of on-board functions such as drills, ship security issues, equipment maintenance.\n> Manning levels should be such as to ensure that the time and place available for taking rest periods are appropriate for achieving a good quality of rest.\n\nIf it is suspected that the manning levels are low, attention should be paid when answering the following questions where necessary (record Finding under the relevant questions):\n> Navigation bridge, Q 3.8 and Q 3.9\n> Moorings Q 10.7\n> Engine Control Room Q 13.2, Q 13.5"
+    },
+    {
+      "index": 5,
+      "section": "Section 2: Certification and personnel management",
+      "question_number": "2.5",
+      "question_text": "Do all personnel maintain rest period/work hours and are the rest hours in compliance with STCW or MLC requirements? (V)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "Record a Finding if:\n> There are two or more consecutive violations by any seafarer on-board in any 30 day period.\n> The vessel’s manager has not been informed at least monthly of compliance levels on board.\n> The work hour records are not to ILO format - Inspector should refer to the IMO/ILO guideline 'Guidelines for the Development of Tables of Seafarers’ Shipboard Working Arrangements and Formats of Records of Seafarers’ Hours of Work or Hours of Rest'.\n\nEach Administration shall, for the purpose of preventing fatigue:\n> Establish and enforce rest periods for watchkeeping personnel and those whose duties involve designated safety, security and prevention of pollution duties in accordance with the provisions of section A-VIII/1 of the STCW Code.\n> All persons who are assigned duty as officer in charge of a watch or as a rating forming part of a watch and those whose duties involve designated safety, prevention of pollution and security duties shall be provided with a rest period of not less than:\n   1. minimum of 10 hours of rest in any 24-hour period; and\n   2. 77 hours in any 7-day period.\n\nThe hours of rest may be divided into no more than two periods, one of which shall be at least 6 hours in length, and the intervals between consecutive periods of rest shall not exceed 14 hours.\n\n> Parties may allow exceptions from the required periods of rest in paragraphs 2 and 3 above provided that the rest period is not less than 70 hours in any 7-day period.\n\nException from the weekly rest period provided for in paragraph 2 shall not be allowed for more than two consecutive weeks. The intervals between the two periods of exceptions onboard shall not be less than twice the duration of the exception.\n\nThe hours of rest provided for in paragraph 1 may be divided into no more than three periods, one of which shall be at least six hours in length, and neither of the other two shall be less than one hour in length. The intervals between consecutive periods of rest shall not exceed 14 hours. Exceptions shall not extend beyond two 24-hour periods in any 7-day period.\n\nExceptions shall, as far as possible, take into account the guidance regarding prevention of fatigue in section B-VIII/1.\n\n(Regulation VIII/1 Fitness for duty  STCW 2017)"
+    },
+    {
+      "index": 6,
+      "section": "Section 2: Certification and personnel management",
+      "question_number": "2.6",
+      "question_text": "Has the Master been provided with relevant ship handling training? (V)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "A Master with less than 5 years sea time in rank must have attended a ship handling course.\n\nIt is important that Masters and chief mates should have had relevant experience and training before assuming the duties of Master or chief mate of large ships or ships having unusual manoeuvring and handling characteristics significantly different from those in which they have recently served. Such characteristics will generally be found in ships which are of considerable deadweight or length or of special design or of high speed. (Section B-V/a, STCW 2017)\n\nThe Master should have attended an approved ship-handling simulator course on an installation capable of simulating the manoeuvring characteristics of such a ship."
+    },
+    {
+      "index": 7,
+      "section": "Section 2: Certification and personnel management",
+      "question_number": "2.7",
+      "question_text": "Have officers and ratings responsible for cargo handling on ships carrying dangerous and hazardous substances in solid form undergone formal training? (V)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "Guidance regarding training of officers and ratings responsible for cargo handling on ships carrying dangerous and hazardous substances in solid form.\n\nTraining should be divided into two parts, a general section on the principles involved and a section on the application of such principles to ship operation. All training and instruction should be given by properly qualified and suitably experienced personnel and cover at least the subjects given in paragraphs 2 to 14 of section B/V b of STCW.\n\nShipboard application:\n> Class 4.1 - Flammable solids\n> Class 4.2 - Substances liable to spontaneous combustion\n> Class 4.3 - Substances which, in contact with water, emit flammable gases\n> Class 5.1 - Oxidizing substances\n> Class 6.1 - Toxic substances\n> Class 7 – Radioactive\n> Class 8 - Corrosives\n> Class 9 - Miscellaneous dangerous substances and articles\n\nRightShip recommends that all officers and ratings responsible for the carriage and care of dangerous and hazardous substances in solid form, including Material Hazardous Only in Bulk (MHB), have received appropriate training to comply with the STCW Convention and Code’s 2010 Manila Amendments. The ‘trickle-down training’ approach, a non-formal method of educating officers where one officer trains another, is not deemed acceptable."
+    },
+    {
+      "index": 8,
+      "section": "Section 2: Certification and personnel management",
+      "question_number": "2.8",
+      "question_text": "Have officers and ratings responsible for cargo handling on ships carrying dangerous and hazardous substances in packaged form undergone formal training? (V)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "This question should be answered N/A if the vessel isn’t a general cargo ship, a roll on roll off (Ro-Ro) ship, or a non-cellular ship fitted for the carriage of containers.\n\nTraining should be divided into two parts, a general section on the principles involved and a section on the application of such principles to ship operation. All training and instruction should be given by properly qualified and suitably experienced personnel and cover at least the subjects given in paragraphs 2 to 19 of section B/V/c of STCW.\n\nRightShip recommends that all officers and ratings responsible for the carriage and care of dangerous and hazardous substances in packaged form undertake appropriate training to ensure compliance with the STCW Convention and Code’s 2010 Manila Amendments. The ‘trickle-down training’ approach, a non-formal method of educating officers where one officer trains another, is not deemed acceptable."
+    },
+    {
+      "index": 9,
+      "section": "Section 2: Certification and personnel management",
+      "question_number": "2.9",
+      "question_text": "Has an SMS policy and procedure been established to enforce the STCW Convention and Code requirements for the purpose of preventing drug and alcohol abuse? (V & M)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "The drug and alcohol policy should define who it applies to. In most circumstances this should be everyone in the organisation, including contractor personnel. The company should ensure that its contractors’ policies on drugs and alcohol align with company policy. There may also be reasons to make reference to safety-critical positions/roles or safety-critical work/operations. It should also specify what substances or categories of substance are prohibited under the policy. This should include any psychoactive substance (i.e. affecting cognitive function), regardless of circumstances of use. Individual countries and jurisdictions may have differing regulations on the import, stocking, possession, or use of drugs or alcohol, and there may be legal requirements for testing. The policy will need to take this into account and make appropriate stipulations and requirements, especially with respect to prohibited behaviours, sampling and testing. These requirements should be made clear to personnel. The policy should also refer to those situations where the use of substances is permitted, specifying what the company will allow and the company’s expectations and requirements with respect to usage and fitness to work. Local regulations should always be considered and should take precedence when defining specific policy parameters. Permitted use may include prescription drugs brought onboard a ship, with evidence of a valid prescription from a qualified registered medical practitioner or issued from the ship’s medical store or the terminal’s clinic.\n\nThis does not preclude a company from having a zero-alcohol and a zero-drug policy on company premises, ships, etc.\n\nA drug and alcohol policy should set out clear and consistent expectations regarding conditions of employment, employee behaviour and the consequences of not meeting these expectations. It is recommended that companies set out in their policy a clear and consistent legally compliant stand-down procedure for those cases where the drug and/or alcohol test is confirmed positive. Employees are expected to follow stand-down orders. Depending on company, role and situation, this could mean standing down from all duties, or standing down from safety critical duties only.\n\nTypical examples may include:\n> Using, distributing/selling, or possessing alcohol or drugs at work other than where use is permitted.\n> Non-compliance with Standards of Training, Certification and Watchkeeping (STCW) guidance.\n> Being under the influence at work, or otherwise unfit for work, due to any prohibited substance.\n> Not complying with stand-down orders given after a positive test result.\n> Refusal to test, interfering with or obstructing a sampling and testing process or otherwise failing to cooperate or comply.\n\nConsequences should be consistent with local company policy and the law. Since many companies will have operations spanning different countries, it may be necessary to adapt the drug and alcohol policy according to legal advice from those jurisdictions.\n\nCompanies should have a fair review process, ensuring personnel can challenge a positive result. It is recommended to choose drug and alcohol testing programmes with the most appropriate technology for the specific type of organisation. Considerations may include available tests, cost, gender sensitivity, any medical advice, availability of competent persons and laboratories to carry out relevant tests, and the practicalities of the sampling processes.\n\nSpecific legal requirements of the jurisdiction may determine what testing can be done and how it must be done. Provided the legal requirements are met, the procedures should include:\n> Employees must consent to being tested for drugs and alcohol for practical and legal reasons. Should they refuse when an employer has grounds for testing, they should be made aware that they may face disciplinary action.\n> Testing must strictly follow validated and authorised processes, to ensure samples cannot be contaminated or tampered with, and that testing procedures and analyses are accurate. It is recommended that companies follow a legally defensible process. This must include adequate training of all parties from sample collection to issuing the validated results, a robust chain of custody process, validated testing methods or laboratories, and an MRO process for non-negative (laboratory positive) samples.\n> Unannounced testing can be done at the workplace and can be done by a trained company collecting officer or an external party – for both drugs and alcohol.\n> Unannounced alcohol tests conducted on-board ships or in terminals can be initiated by the ship’s Master, the Terminal Manager or the company. Initiation by the company is important to ensure there is the ability to test the Master or the Terminal Manager.\n\n(Reference: OCIMF Guidelines for the Control of Drugs and Alcohol in the Maritime Industry   2024)"
+    },
+    {
+      "index": 10,
+      "section": "Section 2: Certification and personnel management",
+      "question_number": "2.10",
+      "question_text": "Are the limits of blood and breath alcohol contents in the drug and alcohol policy equal to, or less than the STCW mandatory alcohol limit? (V&M)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "Each Administration shall establish, for the purpose of preventing alcohol abuse, a limit of not greater than 0.05% blood alcohol concentration (BAC) or 0.25 mg/l alcohol in the breath or a quantity of alcohol leading to such alcohol concentration for Masters, officers and other seafarers while performing designated safety, security, and marine environmental duties.\n\n(Section B-VIII/1, Guidance regarding fitness for duty, STCW 2010)"
+    },
+    {
+      "index": 11,
+      "section": "Section 2: Certification and personnel management",
+      "question_number": "2.11",
+      "question_text": "When was the date of the last recorded unannounced on-board group alcohol test? (M)",
+      "possible_answers": null,
+      "guide_to_inspection": "Record the date. The inspector is required to explain why the N/A response was selected."
+    },
+    {
+      "index": 12,
+      "section": "Section 2: Certification and personnel management",
+      "question_number": "2.12",
+      "question_text": "When was the date of the last unannounced drug test undertaken by an external agency? (M)",
+      "possible_answers": null,
+      "guide_to_inspection": "Record the date. The inspector is required to explain why the N/A response was selected."
+    },
+    {
+      "index": 13,
+      "section": "Section 2: Certification and personnel management",
+      "question_number": "2.13",
+      "question_text": "Is the officer matrix accurately completed and does it reflect the information on officers and engineers on board the vessel at the time of inspection? (V)",
+      "possible_answers": ["Yes", "No", "N/A", "N/V"],
+      "guide_to_inspection": "Inspector must record a Finding unless the crew change(s) took place more than seven days before the date of the inspection. If there is a documented procedure in place and senior officers have been transferred between sister ships, the inspector must not record a Finding for a lack of overlap or parallel sailing period.\n\nThe vessel’s manager shall provide sufficient overlap for Master/Chief Officer and Chief Engineer/Second Engineer to ensure that they are familiar with the vessel’s operation before taking charge, and both senior officers and senior engineers are not changed at the same time.\n\nThe vessel’s manager is responsible to maintain up-to-date records relating to the officers and engineers on board the vessel at the time of inspection. The inspector should have a copy of the updated officer matrix and check the tour on board, qualifications and experience of officers and engineers against the crew list and seaman books. The actual details of Master, Chief Engineer, Chief Officer and Second Engineer/First Engineer must be checked against the data contained in the matrix and a Finding shall be recorded for inaccurate updates.\n\nRandom checks must be made of the actual records applicable to junior officers and junior engineers.\n\nA seafarer may hold a Certificate of Receipt of Application (CRA) and a valid national STCW Certificate, for a period not exceeding three (3) months while an application for the STCW Endorsement Certificate is being processed. The inspector shall check the validity of CRAs."
+    }
+  ]
+}
