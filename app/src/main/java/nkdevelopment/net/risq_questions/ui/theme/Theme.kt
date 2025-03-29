@@ -1,4 +1,4 @@
-package nkdevelopment.net.sire_questions.ui.theme
+package nkdevelopment.net.risq_questions.ui.theme
 
 import android.app.Activity
 import android.os.Build

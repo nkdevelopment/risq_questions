@@ -1,4 +1,4 @@
-package nkdevelopment.net.sire_questions
+package nkdevelopment.net.risq_questions
 
 import android.content.Intent
 import android.os.Bundle
@@ -25,8 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.launch
-import nkdevelopment.net.sire_questions.ui.theme.InspectionAppTheme
+import nkdevelopment.net.risq_questions.ui.theme.InspectionAppTheme
 
 class NewInspectionActivity : ComponentActivity() {
     private lateinit var repository: InspectionRepository

@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "nkdevelopment.net.sire_questions"
+    namespace = "nkdevelopment.net.risq_questions"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "nkdevelopment.net.sire_questions"
+        applicationId = "nkdevelopment.net.risq_questions"
         minSdk = 29
         targetSdk = 35
         versionCode = 1

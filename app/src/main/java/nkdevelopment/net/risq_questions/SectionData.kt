@@ -1,4 +1,4 @@
-package nkdevelopment.net.sire_questions
+package nkdevelopment.net.risq_questions
 
 // Section data class
 data class Section(

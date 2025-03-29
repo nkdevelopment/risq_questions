@@ -1,4 +1,4 @@
-package nkdevelopment.net.sire_questions
+package nkdevelopment.net.risq_questions
 
 import android.content.Intent
 import android.os.Bundle
@@ -23,29 +23,26 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import nkdevelopment.net.sire_questions.ui.theme.InspectionAppTheme
+import nkdevelopment.net.risq_questions.ui.theme.InspectionAppTheme
 import java.text.SimpleDateFormat
 import java.util.*
-import nkdevelopment.net.sire_questions.Inspection
 import androidx.compose.foundation.background
 import android.content.Context
-import kotlinx.coroutines.CoroutineScope
 
 class MainActivity : ComponentActivity() {
     private lateinit var repository: InspectionRepository
+    // Add a refreshKey to force refreshes
+    private var refreshKey = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,13 +51,15 @@ class MainActivity : ComponentActivity() {
         loadUI()
     }
 
-
-
     private fun loadUI() {
+        // Increment the refresh key to ensure complete data reload
+        refreshKey++
+
         setContent {
             InspectionAppTheme {
                 MainScreen(
                     repository = repository,
+                    refreshKey = refreshKey, // Pass the refresh key to MainScreen
                     onStartNewInspection = { inspectionName ->
                         val intent = Intent(this, NewInspectionActivity::class.java).apply {
                             putExtra("INSPECTION_NAME", inspectionName)
@@ -79,10 +78,11 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    // Add this method to refresh the UI when returning to this activity
+    // Ensure we fully refresh the UI when returning to this activity
     override fun onResume() {
         super.onResume()
         Log.d("MainActivity", "onResume called - refreshing inspections list")
+        // Force a complete UI reload to ensure we get fresh data
         loadUI()
     }
 }
@@ -91,6 +91,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen(
     repository: InspectionRepository,
+    refreshKey: Int, // Add refresh key parameter
     onStartNewInspection: (String) -> Unit,
     onContinueInspection: (String) -> Unit,
     context: Context // Add this parameter
@@ -112,11 +113,7 @@ fun MainScreen(
     var inspectionSummaries by remember { mutableStateOf<List<InspectionSummary>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
-    // Key to force recomposition when data changes
-    var refreshKey by remember { mutableStateOf(0) }
-
-    // Load inspections
-    // Update the inspection loading logic in the LaunchedEffect block in MainScreen composable
+    // Load inspections - use refreshKey to force recomposition
     LaunchedEffect(refreshKey) {
         // Hide splash after delay
         if (splashVisible) {
@@ -128,12 +125,15 @@ fun MainScreen(
         isLoading = true
         repository.getAllInspections().collectLatest { list ->
             inspections = list
-            Log.d("MainScreen", "Loaded ${list.size} inspections")
+            Log.d("MainScreen", "Loaded ${list.size} inspections with refresh key: $refreshKey")
 
             // Calculate summaries for each inspection
             val summaries = mutableListOf<InspectionSummary>()
 
             list.forEach { inspection ->
+                // Log detailed info for debugging
+                Log.d("MainScreen", "Processing inspection: ${inspection.inspectionName}, vessel: '${inspection.vessel}'")
+
                 // Calculate completion percentage
                 val completion = repository.calculateCompletionPercentage(inspection)
 
@@ -156,7 +156,7 @@ fun MainScreen(
                     completionPercentage = completion,
                     totalSections = SectionData.sections.size,
                     sectionsStarted = sectionsStarted,
-                    vessel = inspection.vessel
+                    vessel = inspection.vessel // Make sure vessel name is passed
                 )
 
                 Log.d("MainScreen", "Adding summary for ${inspection.inspectionName}, vessel: ${inspection.vessel}")
@@ -313,26 +313,27 @@ fun MainScreen(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 items(inspectionSummaries) { summary ->
-                                    InspectionCard(
-                                        summary = summary,
-                                        onContinue = {
-                                            scope.launch {
-                                                repository.debugInspectionVesselName(summary.inspectionName)
+                                    // Add a key parameter to force recomposition when data changes
+                                    key(summary.inspectionName, summary.vessel, summary.lastModified) {
+                                        InspectionCard(
+                                            summary = summary,
+                                            onContinue = {
+                                                onContinueInspection(summary.inspectionName)
+                                            },
+                                            onDelete = {
+                                                inspectionToDelete = summary.inspectionName
+                                                showDeleteConfirmation = true
+                                            },
+                                            onUpload = {
+                                                scope.launch {
+                                                    isUploading = true
+                                                    uploadResponse = repository.uploadInspection(summary.inspectionName)
+                                                    isUploading = false
+                                                    showUploadDialog = true
+                                                }
                                             }
-                                            onContinueInspection(summary.inspectionName)                                                      },
-                                        onDelete = {
-                                            inspectionToDelete = summary.inspectionName
-                                            showDeleteConfirmation = true
-                                        },
-                                        onUpload = {
-                                            scope.launch {
-                                                isUploading = true
-                                                uploadResponse = repository.uploadInspection(summary.inspectionName)
-                                                isUploading = false
-                                                showUploadDialog = true
-                                            }
-                                        }
-                                    )
+                                        )
+                                    }
                                     Spacer(modifier = Modifier.height(12.dp))
                                 }
 
@@ -443,8 +444,6 @@ fun MainScreen(
                             repository.saveInspection(newInspection)
 
                             showNewInspectionDialog = false
-                            // Trigger a refresh
-                            refreshKey++
                             onStartNewInspection(inspectionName)
                         }
                     }
@@ -485,9 +484,6 @@ fun MainScreen(
                                                 "Inspection deleted",
                                                 Toast.LENGTH_SHORT
                                             ).show()
-
-                                            // Increment refresh key to trigger a reload
-                                            refreshKey++
                                         } else {
                                             // Show failure message
                                             Toast.makeText(
@@ -715,9 +711,8 @@ fun InspectionCard(
                 }
             }
 
-            // Display vessel name if available
+            // Display vessel name if available - now it uses key() for proper recomposition
             if (summary.vessel.isNotBlank()) {
-                Log.d("InspectionCard", "Vessel name: ${summary.vessel}")
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
@@ -736,8 +731,6 @@ fun InspectionCard(
                         fontWeight = FontWeight.Medium
                     )
                 }
-            } else {
-                Log.d("InspectionCard", "No vessel name available")
             }
 
             // Last modified date

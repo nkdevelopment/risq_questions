@@ -1,4 +1,4 @@
-package nkdevelopment.net.sire_questions
+package nkdevelopment.net.risq_questions
 
 import android.app.Application
 import android.util.Log

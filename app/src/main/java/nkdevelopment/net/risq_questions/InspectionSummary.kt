@@ -1,4 +1,4 @@
-package nkdevelopment.net.sire_questions
+package nkdevelopment.net.risq_questions
 
 /**
  * Data class representing a summary of an inspection for display in UI

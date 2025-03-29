@@ -1,4 +1,4 @@
-package nkdevelopment.net.sire_questions
+package nkdevelopment.net.risq_questions
 
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -47,9 +48,8 @@ import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import nkdevelopment.net.sire_questions.ui.theme.InspectionAppTheme
+import nkdevelopment.net.risq_questions.ui.theme.InspectionAppTheme
 import java.io.File
-import nkdevelopment.net.sire_questions.InspectionRepository
 
 
 class SectionActivity : ComponentActivity() {
@@ -115,7 +115,7 @@ fun QuestionItem(
 ) {
     val isAnswered = answer.isNotBlank()
     val possibleAnswers = question.possible_answers
-    var showCommentField by remember { mutableStateOf(false) }
+    var showCommentField by remember { mutableStateOf(comment.isNotBlank()) }
     val maxCommentLength = 500 // Character limit for comments
 
     // Generate background color based on answered state
@@ -427,9 +427,90 @@ fun SectionScreen(
     // Debounce for auto-save
     var saveJob by remember { mutableStateOf<Job?>(null) }
 
+    // New save status indicator states
+    var saveStatus by remember { mutableStateOf<String?>(null) }
+    var showSaveStatus by remember { mutableStateOf(false) }
+
+    // New state for tracking pending saves
+    var hasPendingSaves by remember { mutableStateOf(false) }
+
+    // New state for unsaved changes dialog
+    var showUnsavedChangesDialog by remember { mutableStateOf(false) }
+
     // Update parent activity whenever saveJob changes
     LaunchedEffect(saveJob) {
         onSaveJobUpdated(saveJob)
+        hasPendingSaves = saveJob?.isActive == true
+    }
+
+    // Handle back button with custom behavior
+    BackHandler(enabled = hasPendingSaves) {
+        showUnsavedChangesDialog = true
+    }
+
+    // Function to handle saving with visual feedback
+    val saveResponse = { questionNumber: String, newAnswer: String, newComment: String ->
+        // Cancel previous save job if it exists
+        saveJob?.cancel()
+
+        // Mark that we have pending saves
+        hasPendingSaves = true
+
+        // Create a new save job with debounce
+        saveJob = coroutineScope.launch {
+            try {
+                // Set saving status
+                saveStatus = "Saving..."
+                showSaveStatus = true
+
+                // Wait for debounce period
+                delay(300)
+
+                // Get the section name
+                val section = SectionData.sections.find { it.id == sectionId }
+                val sectionTitle = section?.title ?: ""
+                val sectionKey = "$sectionId: $sectionTitle"
+
+                // Save the response with comment
+                val saved = repository.updateResponse(
+                    inspectionName = inspectionName,
+                    sectionId = sectionId.toString(),
+                    questionNumber = questionNumber,
+                    answer = newAnswer,
+                    comments = newComment
+                )
+
+                // Update UI based on save result
+                if (saved) {
+                    Log.d("SectionActivity", "Saved answer for question $questionNumber")
+                    saveStatus = "Saved"
+
+                    // For specific fields that should update the main inspection object
+                    if (sectionId == 1 && (questionNumber == "1.1" || questionNumber == "1.22")) {
+                        // Update vessel name or inspector name in the inspection object
+                        repository.updateInspectionMetadata(inspectionName)
+                    }
+                } else {
+                    Log.e("SectionActivity", "Failed to save answer for question $questionNumber")
+                    saveStatus = "Save failed"
+                }
+
+                // Show save status briefly
+                showSaveStatus = true
+                delay(1000)
+                showSaveStatus = false
+
+                // Mark that we no longer have pending saves
+                hasPendingSaves = false
+            } catch (e: Exception) {
+                Log.e("SectionActivity", "Error saving response: ${e.message}")
+                saveStatus = "Error: ${e.message}"
+                showSaveStatus = true
+                delay(2000)
+                showSaveStatus = false
+                hasPendingSaves = false
+            }
+        }
     }
 
     // Load questions from JSON file and saved answers
@@ -464,7 +545,7 @@ fun SectionScreen(
                     comments[response.questionNumber] = response.comments // Load comments
                 }
 
-                Log.d("SectionActivity", "Loaded inspection with ${sectionResponses.size} answers")
+                Log.d("SectionActivity", "Loaded inspection with ${sectionResponses.size} answers for section $sectionKey")
             } else {
                 // Create a new inspection if it doesn't exist
                 val newInspection = Inspection.createNew(inspectionName)
@@ -501,7 +582,13 @@ fun SectionScreen(
                     containerColor = MaterialTheme.colorScheme.primary
                 ),
                 navigationIcon = {
-                    IconButton(onClick = onBackClicked) {
+                    IconButton(onClick = {
+                        if (hasPendingSaves) {
+                            showUnsavedChangesDialog = true
+                        } else {
+                            onBackClicked()
+                        }
+                    }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back",
@@ -762,80 +849,26 @@ fun SectionScreen(
                                     answer = answers[question.question_number] ?: "",
                                     comment = comments[question.question_number] ?: "", // Pass comment
                                     onAnswerChanged = { newAnswer ->
+                                        // Update the answers map right away for immediate UI update
                                         answers[question.question_number] = newAnswer
 
-                                        // Special case: If question 1.1 is being answered (Vessel name), update the vessel field in the Inspection
-                                        if (sectionId == 1 && question.question_number == "1.1") {
-                                            // Launch a coroutine to update the vessel name in the inspection object
-                                            coroutineScope.launch {
-                                                // Get the current inspection
-                                                val existingInspection = repository.getInspection(inspectionName)
-                                                if (existingInspection != null) {
-                                                    // Create an updated inspection with the vessel name
-                                                    val updatedInspection = existingInspection.copy(vessel = newAnswer)
-                                                    // Save the updated inspection
-                                                    repository.saveInspection(updatedInspection)
-                                                    Log.d("SectionActivity", "Updated vessel name to: $newAnswer")
-                                                }
-                                            }
-                                        }
-
-                                        // Cancel previous save job if it exists
-                                        saveJob?.cancel()
-
-                                        // Create a new save job with debounce
-                                        saveJob = coroutineScope.launch {
-                                            // Wait for 500ms to avoid saving on each keystroke
-                                            delay(500)
-
-                                            // Save the response with comment
-                                            val saved = repository.updateResponse(
-                                                inspectionName = inspectionName,
-                                                sectionId = sectionId.toString(),
-                                                questionNumber = question.question_number,
-                                                answer = newAnswer,
-                                                comments = comments[question.question_number] ?: ""
-                                            )
-
-                                            // For specific fields that should update the main inspection object
-                                            if (saved && sectionId == 1 && (question.question_number == "1.1" || question.question_number == "1.22")) {
-                                                // Update vessel name or inspector name in the inspection object
-                                                repository.updateInspectionMetadata(inspectionName)
-                                            }
-
-                                            if (saved) {
-                                                Log.d("SectionActivity", "Saved answer for question ${question.question_number}")
-                                            } else {
-                                                Log.e("SectionActivity", "Failed to save answer for question ${question.question_number}")
-                                            }
-                                        }
+                                        // Call our enhanced save function
+                                        saveResponse(
+                                            question.question_number,
+                                            newAnswer,
+                                            comments[question.question_number] ?: ""
+                                        )
                                     },
                                     onCommentChanged = { newComment ->
+                                        // Update the comments map right away for immediate UI update
                                         comments[question.question_number] = newComment
 
-                                        // Cancel previous save job if it exists
-                                        saveJob?.cancel()
-
-                                        // Create a new save job with debounce
-                                        saveJob = coroutineScope.launch {
-                                            // Wait for 500ms to avoid saving on each keystroke
-                                            delay(500)
-
-                                            // Save the response with comment
-                                            val saved = repository.updateResponse(
-                                                inspectionName = inspectionName,
-                                                sectionId = sectionId.toString(),
-                                                questionNumber = question.question_number,
-                                                answer = answers[question.question_number] ?: "",
-                                                comments = newComment
-                                            )
-
-                                            if (saved) {
-                                                Log.d("SectionActivity", "Saved comment for question ${question.question_number}")
-                                            } else {
-                                                Log.e("SectionActivity", "Failed to save comment for question ${question.question_number}")
-                                            }
-                                        }
+                                        // Call our enhanced save function
+                                        saveResponse(
+                                            question.question_number,
+                                            answers[question.question_number] ?: "",
+                                            newComment
+                                        )
                                     },
                                     onGuideClicked = {
                                         currentGuideText = question.guide_to_inspection
@@ -851,6 +884,63 @@ fun SectionScreen(
                         item {
                             Spacer(modifier = Modifier.height(80.dp))
                         }
+                    }
+                }
+            }
+
+            // Save status indicator
+            AnimatedVisibility(
+                visible = showSaveStatus,
+                enter = fadeIn() + slideInVertically(initialOffsetY = { it }),
+                exit = fadeOut(),
+                modifier = Modifier.align(Alignment.BottomCenter)
+            ) {
+                Surface(
+                    modifier = Modifier
+                        .padding(bottom = 80.dp),
+                    color = when {
+                        saveStatus == "Saved" -> MaterialTheme.colorScheme.tertiary
+                        saveStatus == "Saving..." -> MaterialTheme.colorScheme.primary
+                        else -> MaterialTheme.colorScheme.error
+                    },
+                    shape = RoundedCornerShape(25.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (saveStatus == "Saving...") {
+                            CircularProgressIndicator(
+                                modifier = Modifier
+                                    .size(18.dp)
+                                    .padding(end = 4.dp),
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                strokeWidth = 2.dp
+                            )
+                        } else if (saveStatus == "Saved") {
+                            Icon(
+                                Icons.Default.CheckCircle,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onTertiary,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        } else {
+                            Icon(
+                                Icons.Default.Error,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onError,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = saveStatus ?: "",
+                            color = when {
+                                saveStatus == "Saved" -> MaterialTheme.colorScheme.onTertiary
+                                saveStatus == "Saving..." -> MaterialTheme.colorScheme.onPrimary
+                                else -> MaterialTheme.colorScheme.onError
+                            }
+                        )
                     }
                 }
             }
@@ -1079,6 +1169,35 @@ fun SectionScreen(
                         onClick = { showOpenPdfDialog = false }
                     ) {
                         Text("Close")
+                    }
+                }
+            )
+        }
+
+        // Unsaved changes dialog
+        if (showUnsavedChangesDialog) {
+            AlertDialog(
+                onDismissRequest = { showUnsavedChangesDialog = false },
+                icon = { Icon(Icons.Default.Warning, contentDescription = null) },
+                title = { Text("Unsaved Changes") },
+                text = { Text("You have unsaved changes. Wait for saving to complete or discard changes?") },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            // Cancel active save job if exists
+                            saveJob?.cancel()
+                            showUnsavedChangesDialog = false
+                            onBackClicked()
+                        }
+                    ) {
+                        Text("Discard and Exit")
+                    }
+                },
+                dismissButton = {
+                    OutlinedButton(
+                        onClick = { showUnsavedChangesDialog = false }
+                    ) {
+                        Text("Wait")
                     }
                 }
             )

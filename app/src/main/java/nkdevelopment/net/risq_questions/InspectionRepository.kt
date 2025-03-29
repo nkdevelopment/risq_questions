@@ -1,4 +1,4 @@
-package nkdevelopment.net.sire_questions
+package nkdevelopment.net.risq_questions
 
 import android.content.Context
 import android.util.Log
@@ -76,48 +76,112 @@ class InspectionRepository(val context: Context) {
     }.flowOn(Dispatchers.IO)
 
     /**
-     * Get an inspection by name
+     * Get an inspection by name with improved error handling
      */
     suspend fun getInspection(inspectionName: String): Inspection? = withContext(Dispatchers.IO) {
-        val file = File(inspectionsDir, "${sanitizeFileName(inspectionName)}.json")
+        try {
+            val fileName = sanitizeFileName(inspectionName)
+            val file = File(inspectionsDir, "$fileName.json")
 
-        if (file.exists()) {
-            try {
-                return@withContext loadInspectionFromFile(file)
-            } catch (e: Exception) {
-                Log.e("InspectionRepo", "Error loading inspection: ${e.message}")
+            if (!file.exists() || !file.isFile) {
+                Log.d("InspectionRepo", "Inspection file does not exist: $fileName.json")
                 return@withContext null
             }
-        }
 
-        return@withContext null
+            if (!file.canRead()) {
+                Log.e("InspectionRepo", "Cannot read inspection file: $fileName.json")
+                return@withContext null
+            }
+
+            try {
+                val json = file.readText()
+                if (json.isBlank()) {
+                    Log.e("InspectionRepo", "Inspection file is empty: $fileName.json")
+                    return@withContext null
+                }
+
+                val inspection = gson.fromJson(json, Inspection::class.java)
+                return@withContext inspection
+            } catch (e: Exception) {
+                Log.e("InspectionRepo", "Error parsing inspection file $fileName.json: ${e.message}", e)
+                return@withContext null
+            }
+        } catch (e: Exception) {
+            Log.e("InspectionRepo", "Error getting inspection: ${e.message}", e)
+            return@withContext null
+        }
     }
 
     /**
-     * Save or update an inspection
+     * Save or update an inspection with improved error handling
      */
     suspend fun saveInspection(inspection: Inspection): Boolean = withContext(Dispatchers.IO) {
         try {
+            // Ensure the directory exists
+            if (!inspectionsDir.exists()) {
+                val dirCreated = inspectionsDir.mkdirs()
+                if (!dirCreated) {
+                    Log.e("InspectionRepo", "Failed to create inspections directory")
+                    return@withContext false
+                }
+            }
+
             // Update the inspection date to current time
             val updatedInspection = inspection.copy(
-                inspectionDate = SimpleDateFormat(
-                    "yyyy-MM-dd HH:mm:ss",
-                    Locale.getDefault()
-                ).format(Date())
+                inspectionDate = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                    .format(Date())
             )
 
-            val file = File(inspectionsDir, "${sanitizeFileName(inspection.inspectionName)}.json")
-            file.writeText(gson.toJson(updatedInspection))
-            Log.d("InspectionRepo", "Successfully saved inspection: ${inspection.inspectionName}")
-            return@withContext true
+            // Generate file name and check if it's valid
+            val fileName = sanitizeFileName(inspection.inspectionName)
+            if (fileName.isBlank()) {
+                Log.e("InspectionRepo", "Invalid inspection name: ${inspection.inspectionName}")
+                return@withContext false
+            }
+
+            // Create the file
+            val file = File(inspectionsDir, "$fileName.json")
+
+            // Convert inspection to JSON
+            val json = gson.toJson(updatedInspection)
+            if (json.isBlank()) {
+                Log.e("InspectionRepo", "Failed to serialize inspection to JSON")
+                return@withContext false
+            }
+
+            // Use atomic file operations for safer writing
+            try {
+                // First write to a temporary file
+                val tempFile = File(inspectionsDir, "$fileName.tmp")
+                tempFile.writeText(json)
+
+                // If successful, replace the original file
+                if (file.exists()) {
+                    file.delete()
+                }
+
+                val renamed = tempFile.renameTo(file)
+                if (!renamed) {
+                    // If rename fails, try a direct copy
+                    tempFile.copyTo(file, overwrite = true)
+                    tempFile.delete()
+                }
+
+                Log.d("InspectionRepo", "Successfully saved inspection: ${inspection.inspectionName}")
+                return@withContext true
+            } catch (e: Exception) {
+                Log.e("InspectionRepo", "Error writing inspection file: ${e.message}", e)
+                return@withContext false
+            }
         } catch (e: Exception) {
-            Log.e("InspectionRepo", "Error saving inspection: ${e.message}")
+            Log.e("InspectionRepo", "Error saving inspection: ${e.message}", e)
             return@withContext false
         }
     }
 
     /**
      * Update a response for a specific question in an inspection
+     * With improved error handling and consistent section key format
      */
     suspend fun updateResponse(
         inspectionName: String,
@@ -127,96 +191,102 @@ class InspectionRepository(val context: Context) {
         comments: String = ""
     ): Boolean = withContext(Dispatchers.IO) {
         try {
+            // Get existing inspection or create new one
             val existingInspection = getInspection(inspectionName)
-            val inspection = existingInspection ?: Inspection.createNew(inspectionName)
+            if (existingInspection == null) {
+                Log.e("InspectionRepo", "Cannot update response - inspection not found: $inspectionName")
+                return@withContext false
+            }
 
-            // Get the section name for the section ID
+            // Get the section name consistently
             val sectionName = getSectionName(sectionId)
 
-            // Get the question text for this question
+            // Always use the format "sectionId: sectionName" for consistency
+            val sectionKey = "$sectionId: $sectionName"
+
+            // Get the question text
             val questionText = getQuestionText(sectionId, questionNumber)
 
-            // Create or update the response map for this section
-            val sectionResponses =
-                inspection.responses[sectionId]?.toMutableList() ?: mutableListOf()
+            // Create a mutable copy of the responses map
+            val updatedResponses = existingInspection.responses.toMutableMap()
 
-            // Find existing response or create new one
-            val existingIndex =
-                sectionResponses.indexOfFirst { it.questionNumber == questionNumber }
-            if (existingIndex >= 0) {
-                // Update existing
-                sectionResponses[existingIndex] = QuestionResponse(
-                    questionNumber = questionNumber,
-                    answer = answer,
-                    comments = comments,
-                    questionText = questionText  // Add question text
-                )
-            } else {
-                // Add new
-                sectionResponses.add(
-                    QuestionResponse(
-                        questionNumber = questionNumber,
-                        answer = answer,
-                        comments = comments,
-                        questionText = questionText  // Add question text
-                    )
-                )
-            }
+            // Get current responses for this section using the consistent key format
+            val sectionResponses = updatedResponses[sectionKey]?.toMutableList() ?: mutableListOf()
 
-            // Create updated responses map
-            val updatedResponses = inspection.responses.toMutableMap()
+            // Find existing response or add new one
+            val existingIndex = sectionResponses.indexOfFirst { it.questionNumber == questionNumber }
 
-            // Update with section name as key (format: "1: General Information")
-            val sectionKey = if (sectionName.isNotEmpty()) {
-                "$sectionId: $sectionName"
-            } else {
-                sectionId
-            }
-
-            updatedResponses[sectionKey] = sectionResponses
-
-            // Save updated inspection
-            val updatedInspection = inspection.copy(
-                responses = updatedResponses,
-                inspectionDate = SimpleDateFormat(
-                    "yyyy-MM-dd HH:mm:ss",
-                    Locale.getDefault()
-                ).format(Date())
+            // Create the response object
+            val questionResponse = QuestionResponse(
+                questionNumber = questionNumber,
+                answer = answer,
+                comments = comments,
+                questionText = questionText
             )
 
-            val saved = saveInspection(updatedInspection)
-            if (saved) {
-                Log.d(
-                    "InspectionRepo",
-                    "Successfully updated response for ${inspection.inspectionName}, section $sectionId, question $questionNumber"
-                )
+            if (existingIndex >= 0) {
+                // Update existing response
+                sectionResponses[existingIndex] = questionResponse
+            } else {
+                // Add new response
+                sectionResponses.add(questionResponse)
             }
-            return@withContext saved
+
+            // Update the responses map with the updated section responses
+            updatedResponses[sectionKey] = sectionResponses
+
+            // Remove old-format key to avoid duplicates (if it exists)
+            if (updatedResponses.containsKey(sectionId) && sectionId != sectionKey) {
+                updatedResponses.remove(sectionId)
+            }
+
+            // Special handling for vessel name (Q 1.1) and inspector name (Q 1.22)
+            var vesselName = existingInspection.vessel
+            var inspectorName = existingInspection.inspector
+
+            // If this is the vessel name question (1.1), update the vessel field
+            if (sectionId == "1" && questionNumber == "1.1" && answer.isNotBlank()) {
+                vesselName = answer
+                Log.d("InspectionRepo", "Updating vessel name to: '$answer'")
+            }
+
+            // If this is the inspector name question (1.22), update the inspector field
+            if (sectionId == "1" && questionNumber == "1.22" && answer.isNotBlank()) {
+                inspectorName = answer
+                Log.d("InspectionRepo", "Updating inspector name to: '$answer'")
+            }
+
+            // Create updated inspection with new responses and possibly updated vessel/inspector
+            val updatedInspection = existingInspection.copy(
+                vessel = vesselName,
+                inspector = inspectorName,
+                responses = updatedResponses,
+                inspectionDate = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                    .format(Date())
+            )
+
+            // Save the updated inspection
+            val success = saveInspection(updatedInspection)
+
+            if (success) {
+                Log.d("InspectionRepo", "Successfully saved response for $inspectionName, section $sectionKey, question $questionNumber")
+
+                // Explicitly log the vessel name after saving for debugging
+                if (sectionId == "1" && questionNumber == "1.1") {
+                    Log.d("InspectionRepo", "After save - Vessel name is now: '${updatedInspection.vessel}'")
+
+                    // Verify the saved inspection by reading it back
+                    val savedInspection = getInspection(inspectionName)
+                    Log.d("InspectionRepo", "Verification - Vessel name in saved inspection: '${savedInspection?.vessel ?: "null"}'")
+                }
+            } else {
+                Log.e("InspectionRepo", "Failed to save response for $inspectionName, section $sectionKey, question $questionNumber")
+            }
+
+            return@withContext success
         } catch (e: Exception) {
-            Log.e("InspectionRepo", "Error updating response: ${e.message}")
+            Log.e("InspectionRepo", "Error updating response: ${e.message}", e)
             return@withContext false
-        }
-    }
-
-    /**
-     * Get section name for a section ID
-     */
-    private fun getSectionName(sectionId: String): String {
-        val id = sectionId.toIntOrNull() ?: return ""
-        return SectionData.sections.find { it.id == id }?.title ?: ""
-    }
-
-    /**
-     * Get question text for a specific question
-     */
-    private suspend fun getQuestionText(sectionId: String, questionNumber: String): String {
-        try {
-            val questions = loadQuestionsForSection(sectionId)
-            val question = questions.find { it.question_number == questionNumber }
-            return question?.question_text ?: ""
-        } catch (e: Exception) {
-            Log.e("InspectionRepo", "Error getting question text: ${e.message}")
-            return ""
         }
     }
 
@@ -589,10 +659,38 @@ class InspectionRepository(val context: Context) {
     }
 
     /**
-     * Sanitize a file name to be safe for the file system
+     * Sanitize a file name to be safe for the file system - improved version
      */
     private fun sanitizeFileName(name: String): String {
-        return name.replace("[\\\\/:*?\"<>|]".toRegex(), "_")
+        if (name.isBlank()) return "unnamed_inspection"
+
+        val sanitized = name.replace("[\\\\/:*?\"<>|]".toRegex(), "_")
+            .replace("\\s+".toRegex(), "_")
+            .trim()
+
+        return if (sanitized.isBlank()) "unnamed_inspection" else sanitized
+    }
+
+    /**
+     * Get section name for a section ID
+     */
+    private fun getSectionName(sectionId: String): String {
+        val id = sectionId.toIntOrNull() ?: return ""
+        return SectionData.sections.find { it.id == id }?.title ?: ""
+    }
+
+    /**
+     * Get question text for a specific question
+     */
+    private suspend fun getQuestionText(sectionId: String, questionNumber: String): String {
+        try {
+            val questions = loadQuestionsForSection(sectionId)
+            val question = questions.find { it.question_number == questionNumber }
+            return question?.question_text ?: ""
+        } catch (e: Exception) {
+            Log.e("InspectionRepo", "Error getting question text: ${e.message}")
+            return ""
+        }
     }
 
     /**
@@ -664,7 +762,7 @@ class InspectionRepository(val context: Context) {
         }
 
     /**
-     * Function to debug the vessel name issue - add this to InspectionRepository
+     * Function to debug the vessel name issue
      */
     suspend fun debugInspectionVesselName(inspectionName: String) = withContext(Dispatchers.IO) {
         try {
