@@ -41,17 +41,27 @@ android {
 
 dependencies {
 
+    // Core libraries
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+
+    // Explicitly add the missing androidx.core dependency
+    implementation("androidx.core:core:1.15.0")
+    implementation("androidx.appcompat:appcompat:1.6.1")
+
+    // Compose dependencies
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.material.icons.extended)
+
+    // Other dependencies
     implementation(libs.gson)
-    // Add to your dependencies in build.gradle.kts
+
+    // Test dependencies
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

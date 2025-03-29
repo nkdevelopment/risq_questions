@@ -25,7 +25,8 @@ data class Question(
 data class QuestionResponse(
     val questionNumber: String,
     val answer: String,
-    val comments: String = ""
+    val comments: String = "",
+    val questionText: String = ""  // Added question text field
 )
 
 /**
@@ -37,4 +38,20 @@ data class Inspection(
     val vessel: String = "",
     val inspector: String = "",
     val responses: Map<String, List<QuestionResponse>> = mapOf()
-)
+) {
+    companion object {
+        /**
+         * Create a new inspection with default values
+         */
+        fun createNew(inspectionName: String): Inspection {
+            return Inspection(
+                inspectionName = inspectionName,
+                inspectionDate = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault())
+                    .format(java.util.Date()),
+                vessel = "",
+                inspector = "",
+                responses = mapOf()
+            )
+        }
+    }
+}

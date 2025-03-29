@@ -2,6 +2,8 @@ package nkdevelopment.net.sire_questions
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
@@ -9,144 +11,201 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.CloudUpload
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.ClipboardManager
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import nkdevelopment.net.sire_questions.ui.theme.InspectionAppTheme
-import nkdevelopment.net.sire_questions.ui.theme.Accent
+import java.text.SimpleDateFormat
+import java.util.*
+import nkdevelopment.net.sire_questions.Inspection
+import androidx.compose.foundation.background
+import android.content.Context
+import kotlinx.coroutines.CoroutineScope
 
 class MainActivity : ComponentActivity() {
+    private lateinit var repository: InspectionRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        repository = InspectionRepository(this)
+
+        loadUI()
+    }
+
+
+
+    private fun loadUI() {
         setContent {
             InspectionAppTheme {
                 MainScreen(
+                    repository = repository,
                     onStartNewInspection = { inspectionName ->
                         val intent = Intent(this, NewInspectionActivity::class.java).apply {
                             putExtra("INSPECTION_NAME", inspectionName)
                         }
                         startActivity(intent)
-                    }
+                    },
+                    onContinueInspection = { inspectionName ->
+                        val intent = Intent(this, NewInspectionActivity::class.java).apply {
+                            putExtra("INSPECTION_NAME", inspectionName)
+                        }
+                        startActivity(intent)
+                    },
+                    context = this // Pass the context
                 )
             }
         }
+    }
+
+    // Add this method to refresh the UI when returning to this activity
+    override fun onResume() {
+        super.onResume()
+        Log.d("MainActivity", "onResume called - refreshing inspections list")
+        loadUI()
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
-    onStartNewInspection: (String) -> Unit
+    repository: InspectionRepository,
+    onStartNewInspection: (String) -> Unit,
+    onContinueInspection: (String) -> Unit,
+    context: Context // Add this parameter
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var showNewInspectionDialog by remember { mutableStateOf(false) }
     var splashVisible by remember { mutableStateOf(true) }
+    var showDeleteConfirmation by remember { mutableStateOf(false) }
+    var inspectionToDelete by remember { mutableStateOf<String?>(null) }
 
-    // Hide splash screen after a delay
-    LaunchedEffect(Unit) {
-        kotlinx.coroutines.delay(1500)
-        splashVisible = false
+    // Upload state variables
+    var isUploading by remember { mutableStateOf(false) }
+    var uploadResponse by remember { mutableStateOf<Result<String>?>(null) }
+    var showUploadDialog by remember { mutableStateOf(false) }
+
+    // State for list of inspections
+    var inspections by remember { mutableStateOf<List<Inspection>>(emptyList()) }
+    var inspectionSummaries by remember { mutableStateOf<List<InspectionSummary>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+
+    // Key to force recomposition when data changes
+    var refreshKey by remember { mutableStateOf(0) }
+
+    // Load inspections
+    // Update the inspection loading logic in the LaunchedEffect block in MainScreen composable
+    LaunchedEffect(refreshKey) {
+        // Hide splash after delay
+        if (splashVisible) {
+            kotlinx.coroutines.delay(1500)
+            splashVisible = false
+        }
+
+        // Collect inspections
+        isLoading = true
+        repository.getAllInspections().collectLatest { list ->
+            inspections = list
+            Log.d("MainScreen", "Loaded ${list.size} inspections")
+
+            // Calculate summaries for each inspection
+            val summaries = mutableListOf<InspectionSummary>()
+
+            list.forEach { inspection ->
+                // Calculate completion percentage
+                val completion = repository.calculateCompletionPercentage(inspection)
+
+                // Get count of sections with answers - checking both key formats
+                var sectionsStarted = 0
+                SectionData.sections.forEach { section ->
+                    val sectionId = section.id.toString()
+                    val sectionTitle = section.title
+                    val sectionKey = "$sectionId: $sectionTitle"
+
+                    if (inspection.responses.containsKey(sectionKey) || inspection.responses.containsKey(sectionId)) {
+                        sectionsStarted++
+                    }
+                }
+
+                // Create inspection summary with vessel name
+                val summary = InspectionSummary(
+                    inspectionName = inspection.inspectionName,
+                    lastModified = inspection.inspectionDate,
+                    completionPercentage = completion,
+                    totalSections = SectionData.sections.size,
+                    sectionsStarted = sectionsStarted,
+                    vessel = inspection.vessel
+                )
+
+                Log.d("MainScreen", "Adding summary for ${inspection.inspectionName}, vessel: ${inspection.vessel}")
+                summaries.add(summary)
+            }
+
+            inspectionSummaries = summaries
+            isLoading = false
+        }
     }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
+            // Drawer content
             ModalDrawerSheet(
                 modifier = Modifier.width(300.dp),
                 drawerContainerColor = MaterialTheme.colorScheme.surface,
                 drawerContentColor = MaterialTheme.colorScheme.onSurface
             ) {
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Header
-                Row(
+                // Drawer header
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                        .height(120.dp)
+                        .background(MaterialTheme.colorScheme.primary),
+                    contentAlignment = Alignment.CenterStart
                 ) {
-                    Surface(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clip(CircleShape),
-                        color = MaterialTheme.colorScheme.primary
-                    ) {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            Icon(
-                                Icons.Default.Build,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier.size(28.dp)
-                            )
-                        }
-                    }
-
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 16.dp)
+                        modifier = Modifier.padding(16.dp)
                     ) {
                         Text(
-                            text = "Vessel Inspection",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurface
+                            "Vessel Inspection",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.onPrimary
                         )
                         Text(
-                            text = "SIRE Questions App",
+                            "SIRE Questionnaire",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
                         )
                     }
                 }
 
-                Divider(
-                    modifier = Modifier.padding(vertical = 16.dp),
-                    color = MaterialTheme.colorScheme.outlineVariant
-                )
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // Menu items
                 NavigationDrawerItem(
-                    label = { Text("Home") },
-                    selected = true,
-                    onClick = {
-                        scope.launch {
-                            drawerState.close()
-                        }
-                    },
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Default.Build,
-                            contentDescription = "Home"
-                        )
-                    }
-                )
-
-                NavigationDrawerItem(
-                    label = { Text("Start New Inspection") },
+                    label = { Text("New Inspection") },
                     selected = false,
                     onClick = {
                         scope.launch {
@@ -154,60 +213,19 @@ fun MainScreen(
                             showNewInspectionDialog = true
                         }
                     },
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "New Inspection"
-                        )
-                    }
-                )
-
-                NavigationDrawerItem(
-                    label = { Text("Settings") },
-                    selected = false,
-                    onClick = {
-                        scope.launch {
-                            drawerState.close()
-                        }
-                    },
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings"
-                        )
-                    }
+                    icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                    badge = { },
+                    modifier = Modifier.padding(horizontal = 16.dp)
                 )
 
                 NavigationDrawerItem(
                     label = { Text("About") },
                     selected = false,
-                    onClick = {
-                        scope.launch {
-                            drawerState.close()
-                        }
-                    },
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Default.Info,
-                            contentDescription = "About"
-                        )
-                    }
+                    onClick = { /* Show about dialog */ },
+                    icon = { Icon(Icons.Default.Info, contentDescription = null) },
+                    badge = { },
+                    modifier = Modifier.padding(horizontal = 16.dp)
                 )
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                // Bottom part
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        text = "Version 1.0",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
             }
         }
     ) {
@@ -266,121 +284,62 @@ fun MainScreen(
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp)
                     ) {
-                        // Main content
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surface
-                            ),
-                            elevation = CardDefaults.cardElevation(
-                                defaultElevation = 2.dp
+                        // Main content - Show list of inspections or welcome screen
+                        if (isLoading) {
+                            // Loading state
+                            CircularProgressIndicator(
+                                modifier = Modifier.padding(16.dp),
+                                color = MaterialTheme.colorScheme.primary
                             )
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
+                        } else if (inspectionSummaries.isEmpty()) {
+                            // Empty state - No inspections
+                            EmptyInspectionsView(onCreateNew = { showNewInspectionDialog = true })
+                        } else {
+                            // List of inspections
+                            Text(
+                                text = "Your Inspections",
+                                style = MaterialTheme.typography.titleLarge,
                                 modifier = Modifier
-                                    .padding(24.dp)
                                     .fillMaxWidth()
-                            ) {
-                                Surface(
-                                    modifier = Modifier
-                                        .size(120.dp)
-                                        .clip(CircleShape),
-                                    color = MaterialTheme.colorScheme.primaryContainer
-                                ) {
-                                    Box(
-                                        contentAlignment = Alignment.Center,
-                                        modifier = Modifier.fillMaxSize()
-                                    ) {
-                                        Icon(
-                                            imageVector =                                         Icons.Default.Build,
-                                            contentDescription = "Inspection Icon",
-                                            modifier = Modifier.size(64.dp),
-                                            tint = MaterialTheme.colorScheme.primary
-                                        )
-                                    }
-                                }
-
-                                Spacer(modifier = Modifier.height(24.dp))
-
-                                Text(
-                                    text = "Vessel Inspection App",
-                                    style = MaterialTheme.typography.headlineMedium,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    fontWeight = FontWeight.Bold,
-                                    textAlign = TextAlign.Center
-                                )
-
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                Text(
-                                    text = "Manage and conduct vessel inspections with ease using standardized SIRE questions and guidelines.",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    textAlign = TextAlign.Center
-                                )
-
-                                Spacer(modifier = Modifier.height(32.dp))
-
-                                Button(
-                                    onClick = { showNewInspectionDialog = true },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(56.dp),
-                                    shape = RoundedCornerShape(28.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = MaterialTheme.colorScheme.tertiary
-                                    )
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Add,
-                                        contentDescription = "Add",
-                                        modifier = Modifier.padding(end = 8.dp)
-                                    )
-                                    Text(
-                                        "Start New Inspection",
-                                        style = MaterialTheme.typography.titleMedium
-                                    )
-                                }
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        // Additional card with quick info
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.secondaryContainer
-                            ),
-                            elevation = CardDefaults.cardElevation(
-                                defaultElevation = 1.dp
+                                    .padding(vertical = 16.dp),
+                                textAlign = TextAlign.Start
                             )
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.padding(16.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.CheckCircle,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.secondary,
-                                    modifier = Modifier.size(32.dp)
-                                )
 
-                                Text(
-                                    text = "Complete standardized inspection forms with guided steps and export results as PDF.",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                    modifier = Modifier.padding(start = 16.dp)
-                                )
+                            LazyColumn(
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                items(inspectionSummaries) { summary ->
+                                    InspectionCard(
+                                        summary = summary,
+                                        onContinue = {
+                                            scope.launch {
+                                                repository.debugInspectionVesselName(summary.inspectionName)
+                                            }
+                                            onContinueInspection(summary.inspectionName)                                                      },
+                                        onDelete = {
+                                            inspectionToDelete = summary.inspectionName
+                                            showDeleteConfirmation = true
+                                        },
+                                        onUpload = {
+                                            scope.launch {
+                                                isUploading = true
+                                                uploadResponse = repository.uploadInspection(summary.inspectionName)
+                                                isUploading = false
+                                                showUploadDialog = true
+                                            }
+                                        }
+                                    )
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                }
+
+                                // Bottom spacing
+                                item {
+                                    Spacer(modifier = Modifier.height(80.dp))
+                                }
                             }
                         }
                     }
@@ -391,57 +350,83 @@ fun MainScreen(
                     visible = splashVisible,
                     exit = fadeOut()
                 ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.background)
+                    ) {
+                        // App logo or icon
+                        Surface(
+                            modifier = Modifier.size(120.dp),
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.primary
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    imageVector = Icons.Default.Sailing,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(64.dp),
+                                    tint = MaterialTheme.colorScheme.onPrimary
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(32.dp))
+
+                        Text(
+                            "Vessel Inspection",
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+
+                        Text(
+                            "SIRE Questionnaire App",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+                        )
+
+                        Spacer(modifier = Modifier.height(48.dp))
+
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(40.dp),
+                            strokeWidth = 4.dp
+                        )
+                    }
+                }
+
+                // Upload progress overlay
+                if (isUploading) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(32.dp),
+                            .background(Color.Black.copy(alpha = 0.5f)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally
+                        Card(
+                            modifier = Modifier
+                                .width(300.dp)
+                                .padding(16.dp),
+                            shape = RoundedCornerShape(16.dp)
                         ) {
-                            Surface(
+                            Column(
                                 modifier = Modifier
-                                    .size(160.dp)
-                                    .clip(CircleShape),
-                                color = MaterialTheme.colorScheme.primary
+                                    .padding(16.dp)
+                                    .fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Box(
-                                    contentAlignment = Alignment.Center,
-                                    modifier = Modifier.fillMaxSize()
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Build,
-                                        contentDescription = "App Logo",
-                                        modifier = Modifier.size(96.dp),
-                                        tint = MaterialTheme.colorScheme.onPrimary
-                                    )
-                                }
+                                CircularProgressIndicator(
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(48.dp)
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = "Uploading Inspection...",
+                                    style = MaterialTheme.typography.titleMedium
+                                )
                             }
-
-                            Spacer(modifier = Modifier.height(24.dp))
-
-                            Text(
-                                text = "Vessel Inspection",
-                                style = MaterialTheme.typography.headlineLarge,
-                                color = MaterialTheme.colorScheme.onBackground,
-                                fontWeight = FontWeight.Bold
-                            )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Text(
-                                text = "SIRE Questions",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-
-                            Spacer(modifier = Modifier.height(48.dp))
-
-                            CircularProgressIndicator(
-                                color = MaterialTheme.colorScheme.tertiary,
-                                strokeWidth = 4.dp
-                            )
                         }
                     }
                 }
@@ -452,10 +437,385 @@ fun MainScreen(
                 NewInspectionNameDialog(
                     onDismiss = { showNewInspectionDialog = false },
                     onConfirm = { inspectionName ->
-                        showNewInspectionDialog = false
-                        onStartNewInspection(inspectionName)
+                        scope.launch {
+                            // Create new inspection
+                            val newInspection = Inspection.createNew(inspectionName)
+                            repository.saveInspection(newInspection)
+
+                            showNewInspectionDialog = false
+                            // Trigger a refresh
+                            refreshKey++
+                            onStartNewInspection(inspectionName)
+                        }
                     }
                 )
+            }
+
+            // Delete confirmation dialog
+            if (showDeleteConfirmation && inspectionToDelete != null) {
+                AlertDialog(
+                    onDismissRequest = {
+                        showDeleteConfirmation = false
+                        inspectionToDelete = null
+                    },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = "Warning",
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    },
+                    title = {
+                        Text("Delete Inspection")
+                    },
+                    text = {
+                        Text("Are you sure you want to delete \"$inspectionToDelete\"? This action cannot be undone.")
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                inspectionToDelete?.let { name ->
+                                    scope.launch {
+                                        val success = repository.deleteInspection(name)
+
+                                        if (success) {
+                                            // Display success message
+                                            Toast.makeText(
+                                                context,
+                                                "Inspection deleted",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+
+                                            // Increment refresh key to trigger a reload
+                                            refreshKey++
+                                        } else {
+                                            // Show failure message
+                                            Toast.makeText(
+                                                context,
+                                                "Failed to delete inspection",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+
+                                        // Reset dialog state
+                                        showDeleteConfirmation = false
+                                        inspectionToDelete = null
+                                    }
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.error
+                            )
+                        ) {
+                            Text("Delete")
+                        }
+                    },
+                    dismissButton = {
+                        OutlinedButton(
+                            onClick = {
+                                showDeleteConfirmation = false
+                                inspectionToDelete = null
+                            }
+                        ) {
+                            Text("Cancel")
+                        }
+                    }
+                )
+            }
+
+            // Upload result dialog
+            if (showUploadDialog && uploadResponse != null) {
+                val clipboardManager = LocalClipboardManager.current
+
+                AlertDialog(
+                    onDismissRequest = {
+                        showUploadDialog = false
+                        uploadResponse = null
+                    },
+                    icon = {
+                        Icon(
+                            imageVector = if (uploadResponse?.isSuccess == true)
+                                Icons.Default.CheckCircle else Icons.Default.Error,
+                            contentDescription = null,
+                            tint = if (uploadResponse?.isSuccess == true)
+                                MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error
+                        )
+                    },
+                    title = {
+                        Text(
+                            text = if (uploadResponse?.isSuccess == true)
+                                "Upload Successful" else "Upload Failed"
+                        )
+                    },
+                    text = {
+                        Column {
+                            if (uploadResponse?.isSuccess == true) {
+                                val url = uploadResponse?.getOrNull() ?: ""
+                                Text("The inspection has been successfully uploaded to the server.")
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                Surface(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    color = MaterialTheme.colorScheme.surfaceVariant,
+                                    shape = RoundedCornerShape(8.dp)
+                                ) {
+                                    Text(
+                                        text = url,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        modifier = Modifier.padding(8.dp)
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                Button(
+                                    onClick = {
+                                        clipboardManager.setText(AnnotatedString(uploadResponse?.getOrNull() ?: ""))
+                                    },
+                                    modifier = Modifier.align(Alignment.End)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.ContentCopy,
+                                        contentDescription = "Copy URL",
+                                        modifier = Modifier.size(18.dp).padding(end = 4.dp)
+                                    )
+                                    Text("Copy URL")
+                                }
+                            } else {
+                                Text(
+                                    "Failed to upload the inspection: ${uploadResponse?.exceptionOrNull()?.message ?: "Unknown error"}"
+                                )
+                            }
+                        }
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                showUploadDialog = false
+                                uploadResponse = null
+                            }
+                        ) {
+                            Text("OK")
+                        }
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun EmptyInspectionsView(onCreateNew: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = Icons.Default.FindInPage,
+            contentDescription = null,
+            modifier = Modifier
+                .size(100.dp)
+                .padding(16.dp),
+            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+        )
+
+        Text(
+            text = "No inspections yet",
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
+
+        Text(
+            text = "Start a new vessel inspection to begin recording your findings",
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 24.dp)
+        )
+
+        Button(
+            onClick = onCreateNew,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 32.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary
+            )
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = null,
+                modifier = Modifier.padding(end = 8.dp)
+            )
+            Text("Create New Inspection")
+        }
+    }
+}
+
+@Composable
+fun InspectionCard(
+    summary: InspectionSummary,
+    onContinue: () -> Unit,
+    onDelete: () -> Unit,
+    onUpload: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            // Header with inspection name and actions
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = summary.inspectionName,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+
+                // Action buttons
+                Row {
+                    // Upload button
+                    IconButton(
+                        onClick = onUpload,
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.CloudUpload,
+                            contentDescription = "Upload inspection",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+
+                    // Delete button
+                    IconButton(
+                        onClick = onDelete,
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Delete",
+                            tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
+                        )
+                    }
+                }
+            }
+
+            // Display vessel name if available
+            if (summary.vessel.isNotBlank()) {
+                Log.d("InspectionCard", "Vessel name: ${summary.vessel}")
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.DirectionsBoat,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "Vessel: ${summary.vessel}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.secondary,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            } else {
+                Log.d("InspectionCard", "No vessel name available")
+            }
+
+            // Last modified date
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.Schedule,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = "Last edited: ${formatDate(summary.lastModified)}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Completion info
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                // Progress indicator
+                Box(modifier = Modifier.weight(1f)) {
+                    Column {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = "${(summary.completionPercentage * 100).toInt()}% Complete",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.weight(1f)
+                            )
+
+                            Text(
+                                text = "${summary.sectionsStarted}/${summary.totalSections} sections",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        LinearProgressIndicator(
+                            progress = { summary.completionPercentage },
+                            modifier = Modifier.fillMaxWidth(),
+                            color = when {
+                                summary.completionPercentage > 0.7f -> MaterialTheme.colorScheme.tertiary
+                                summary.completionPercentage > 0.3f -> MaterialTheme.colorScheme.primary
+                                else -> MaterialTheme.colorScheme.error
+                            },
+                            trackColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Continue button
+            Button(
+                onClick = onContinue,
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.PlayArrow,
+                    contentDescription = null,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+                Text("Continue Inspection")
             }
         }
     }
@@ -574,5 +934,20 @@ fun NewInspectionNameDialog(
                 }
             }
         }
+    }
+}
+
+/**
+ * Format a date string for display
+ */
+private fun formatDate(dateString: String): String {
+    try {
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+        val outputFormat = SimpleDateFormat("MMM d, yyyy 'at' h:mm a", Locale.getDefault())
+
+        val date = inputFormat.parse(dateString) ?: return dateString
+        return outputFormat.format(date)
+    } catch (e: Exception) {
+        return dateString
     }
 }

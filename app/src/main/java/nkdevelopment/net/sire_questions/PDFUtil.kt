@@ -23,6 +23,7 @@ suspend fun exportToPdf(
     sectionId: Int,
     questions: List<Question>,
     answers: Map<String, String>,
+    comments: Map<String, String>,
     inspectionName: String?,
     onPdfCreated: (String) -> Unit
 ): String = withContext(Dispatchers.IO) {
@@ -58,8 +59,15 @@ suspend fun exportToPdf(
         typeface = Typeface.DEFAULT
     }
 
+    val italicPaint = Paint().apply {
+        color = Color.rgb(80, 80, 80)
+        textSize = 12f
+        typeface = Typeface.create(Typeface.DEFAULT, Typeface.ITALIC)
+    }
+
     // Section information
-    val sectionTitle = SectionData.sections.find { it.id == sectionId }?.title ?: "Section $sectionId"
+    val section = SectionData.sections.find { it.id == sectionId }
+    val sectionTitle = section?.title ?: "Section $sectionId"
 
     // Create first page
     var pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
@@ -105,7 +113,7 @@ suspend fun exportToPdf(
             y = margin + 30f
 
             // Draw header on new page
-            canvas.drawText("Section $sectionId - Page $pageNum", margin.toFloat(), y, headerPaint)
+            canvas.drawText("Section $sectionId: $sectionTitle - Page $pageNum", margin.toFloat(), y, headerPaint)
             y += 36
 
             return true
@@ -115,8 +123,12 @@ suspend fun exportToPdf(
 
     // Draw questions and answers
     for (question in questions) {
-        // Check if we need a new page for this question (estimate space needed)
-        checkPageBreak(160f) // Approximate height for a question with answer
+        // Calculate required space for this question
+        val hasComment = comments[question.question_number]?.isNotBlank() == true
+        val estimatedSpace = if (hasComment) 200f else 160f  // More space if there's a comment
+
+        // Check if we need a new page for this question
+        checkPageBreak(estimatedSpace)
 
         // Question number and text
         canvas.drawText("${question.question_number}", margin.toFloat(), y, headerPaint)
@@ -137,6 +149,24 @@ suspend fun exportToPdf(
         val answer = answers[question.question_number] ?: "Not answered"
         canvas.drawText(answer, margin.toFloat() + 20, y, normalPaint)
         y += 30
+
+        // Comment section if there is a comment
+        val comment = comments[question.question_number]
+        if (!comment.isNullOrBlank()) {
+            checkPageBreak(80f)  // Check if we need a new page for the comment
+
+            canvas.drawText("Comment:", margin.toFloat() + 20, y, headerPaint)
+            y += 20
+
+            // Wrap comment text
+            val commentTextLines = wrapText(comment, italicPaint, pageWidth - (2 * margin) - 20)
+            for (line in commentTextLines) {
+                canvas.drawText(line, margin.toFloat() + 20, y, italicPaint)
+                y += 20
+            }
+
+            y += 10
+        }
 
         // Draw a separator line
         canvas.drawLine(margin.toFloat(), y - 10, (pageWidth - margin).toFloat(), y - 10, Paint().apply {

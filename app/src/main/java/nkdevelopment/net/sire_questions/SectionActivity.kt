@@ -12,22 +12,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
@@ -35,48 +28,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Error
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.OpenInNew
-import androidx.compose.material.icons.filled.PictureAsPdf
-import androidx.compose.material.icons.filled.SentimentDissatisfied
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RadioButtonDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateMapOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -87,27 +41,65 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.FileProvider
+import androidx.lifecycle.lifecycleScope
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import nkdevelopment.net.sire_questions.ui.theme.InspectionAppTheme
 import java.io.File
+import nkdevelopment.net.sire_questions.InspectionRepository
+
 
 class SectionActivity : ComponentActivity() {
+    private lateinit var repository: InspectionRepository
+    // Make saveJob accessible at the class level
+    private var saveJob: Job? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val sectionId = intent.getIntExtra("SECTION_ID", 1)
-        val inspectionName = intent.getStringExtra("INSPECTION_NAME")
+        val inspectionName = intent.getStringExtra("INSPECTION_NAME") ?: return
+
+        repository = InspectionRepository(this)
 
         setContent {
             InspectionAppTheme {
                 SectionScreen(
                     sectionId = sectionId,
                     inspectionName = inspectionName,
-                    onBackClicked = { finish() },
-                    context = this
+                    onBackClicked = {
+                        // Use lifecycleScope to wait for any pending saves before navigating back
+                        lifecycleScope.launch {
+                            saveJob?.join() // Wait for pending save operations
+                            finish()
+                        }
+                    },
+                    context = this,
+                    repository = repository,
+                    onSaveJobUpdated = { job ->
+                        saveJob = job
+                        Log.d("SectionActivity", "Save job updated: ${job?.isActive}")
+                    }
                 )
             }
+        }
+    }
+
+    // Override onBackPressed to ensure saves complete before navigating back
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        if (saveJob != null && saveJob?.isActive == true) {
+            // Use lifecycleScope since we're outside of a composable
+            lifecycleScope.launch {
+                Log.d("SectionActivity", "Waiting for save job to complete before navigating back")
+                // Wait for any pending saves to complete
+                saveJob?.join()
+                super.onBackPressed()
+            }
+        } else {
+            super.onBackPressed()
         }
     }
 }
@@ -116,11 +108,15 @@ class SectionActivity : ComponentActivity() {
 fun QuestionItem(
     question: Question,
     answer: String,
+    comment: String,
     onAnswerChanged: (String) -> Unit,
+    onCommentChanged: (String) -> Unit,
     onGuideClicked: () -> Unit
 ) {
     val isAnswered = answer.isNotBlank()
     val possibleAnswers = question.possible_answers
+    var showCommentField by remember { mutableStateOf(false) }
+    val maxCommentLength = 500 // Character limit for comments
 
     // Generate background color based on answered state
     val cardColor = if (isAnswered) {
@@ -284,27 +280,112 @@ fun QuestionItem(
                 )
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Guide to inspection button
-            TextButton(
-                onClick = onGuideClicked,
-                modifier = Modifier.align(Alignment.End),
-                colors = ButtonDefaults.textButtonColors(
-                    contentColor = MaterialTheme.colorScheme.primary
-                )
+            // Comment section
+            AnimatedVisibility(
+                visible = showCommentField,
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically()
             ) {
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = "Guide to Inspection",
+                Column(
                     modifier = Modifier
-                        .size(18.dp)
-                        .padding(end = 4.dp)
-                )
-                Text(
-                    "Guide to Inspection",
-                    style = MaterialTheme.typography.labelMedium
-                )
+                        .fillMaxWidth()
+                        .padding(top = 12.dp)
+                ) {
+                    OutlinedTextField(
+                        value = comment,
+                        onValueChange = {
+                            if (it.length <= maxCommentLength) {
+                                onCommentChanged(it)
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("Comment") },
+                        placeholder = { Text("Add a comment or note about this question") },
+                        singleLine = false,
+                        maxLines = 4,
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.secondary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface
+                        ),
+                        supportingText = {
+                            Text(
+                                text = "${comment.length}/$maxCommentLength",
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.End,
+                                color = if (comment.length >= maxCommentLength)
+                                    MaterialTheme.colorScheme.error
+                                else
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    )
+                }
+            }
+
+            // Action buttons row
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Comment button
+                TextButton(
+                    onClick = { showCommentField = !showCommentField },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.secondary
+                    )
+                ) {
+                    Icon(
+                        imageVector = if (comment.isNotBlank())
+                            Icons.Default.Comment
+                        else
+                            Icons.Default.AddComment,
+                        contentDescription = "Comment",
+                        modifier = Modifier
+                            .size(18.dp)
+                            .padding(end = 4.dp)
+                    )
+                    Text(
+                        text = if (showCommentField) "Hide Comment" else
+                            if (comment.isNotBlank()) "Edit Comment" else "Add Comment",
+                        style = MaterialTheme.typography.labelMedium
+                    )
+
+                    // Badge if comment exists but is hidden
+                    if (comment.isNotBlank() && !showCommentField) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .background(MaterialTheme.colorScheme.secondary, CircleShape)
+                                .align(Alignment.Top)
+                        )
+                    }
+                }
+
+                // Guide to inspection button
+                TextButton(
+                    onClick = onGuideClicked,
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = "Guide to Inspection",
+                        modifier = Modifier
+                            .size(18.dp)
+                            .padding(end = 4.dp)
+                    )
+                    Text(
+                        "Guide to Inspection",
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                }
             }
         }
     }
@@ -314,9 +395,11 @@ fun QuestionItem(
 @Composable
 fun SectionScreen(
     sectionId: Int,
-    inspectionName: String? = null,
+    inspectionName: String,
     onBackClicked: () -> Unit,
-    context: Context
+    context: Context,
+    repository: InspectionRepository,
+    onSaveJobUpdated: (Job?) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     val sectionJsonFileName = "section_${sectionId}.json"
@@ -324,6 +407,7 @@ fun SectionScreen(
     // Questionnaire state
     val questions = remember { mutableStateListOf<Question>() }
     val answers = remember { mutableStateMapOf<String, String>() }
+    val comments = remember { mutableStateMapOf<String, String>() } // Add this for comments
 
     // Guide dialog state
     var showGuideDialog by remember { mutableStateOf(false) }
@@ -340,39 +424,58 @@ fun SectionScreen(
     // Loading state
     var isLoading by remember { mutableStateOf(true) }
 
-    // Load questions from JSON file
+    // Debounce for auto-save
+    var saveJob by remember { mutableStateOf<Job?>(null) }
+
+    // Update parent activity whenever saveJob changes
+    LaunchedEffect(saveJob) {
+        onSaveJobUpdated(saveJob)
+    }
+
+    // Load questions from JSON file and saved answers
     LaunchedEffect(sectionId) {
         try {
-            // Simulate loading for better UX
-            kotlinx.coroutines.delay(500)
-
-            val jsonString =
-                context.assets.open(sectionJsonFileName).bufferedReader().use { it.readText() }
+            // Load questions from assets
+            val jsonString = context.assets.open(sectionJsonFileName).bufferedReader().use { it.readText() }
             val type = object : TypeToken<QuestionnaireData>() {}.type
             val data = Gson().fromJson<QuestionnaireData>(jsonString, type)
             questions.clear()
             questions.addAll(data.questions)
-            isLoading = false
-            Log.d(
-                "SectionActivity",
-                "Successfully loaded ${data.questions.size} questions from $sectionJsonFileName"
-            )
-        } catch (e: Exception) {
-            Log.e("SectionActivity", "Error loading JSON: ${e.message}")
-            // If section_1.json file exists in assets, use it for testing purposes
-            try {
-                val jsonString =
-                    context.assets.open("section_1.json").bufferedReader().use { it.readText() }
-                val type = object : TypeToken<QuestionnaireData>() {}.type
-                val data = Gson().fromJson<QuestionnaireData>(jsonString, type)
-                questions.clear()
-                questions.addAll(data.questions)
-                isLoading = false
-                Log.d("SectionActivity", "Loaded fallback data with ${questions.size} questions")
-            } catch (e: Exception) {
-                Log.e("SectionActivity", "Error loading fallback JSON: ${e.message}")
-                isLoading = false
+
+            // Load saved answers for this inspection and section
+            val inspection = repository.getInspection(inspectionName)
+            if (inspection != null) {
+                // Get section name
+                val section = SectionData.sections.find { it.id == sectionId }
+                val sectionTitle = section?.title ?: ""
+
+                // Try both formats of section key (with and without section name)
+                val sectionKey = "$sectionId: $sectionTitle"
+                val sectionResponsesWithName = inspection.responses[sectionKey] ?: emptyList()
+                val sectionResponsesWithoutName = inspection.responses[sectionId.toString()] ?: emptyList()
+
+                // Use responses with section name if available, otherwise use old format
+                val sectionResponses = if (sectionResponsesWithName.isNotEmpty())
+                    sectionResponsesWithName else sectionResponsesWithoutName
+
+                // Populate answers map with saved responses
+                sectionResponses.forEach { response ->
+                    answers[response.questionNumber] = response.answer
+                    comments[response.questionNumber] = response.comments // Load comments
+                }
+
+                Log.d("SectionActivity", "Loaded inspection with ${sectionResponses.size} answers")
+            } else {
+                // Create a new inspection if it doesn't exist
+                val newInspection = Inspection.createNew(inspectionName)
+                repository.saveInspection(newInspection)
+                Log.d("SectionActivity", "Created new inspection: $inspectionName")
             }
+
+            isLoading = false
+        } catch (e: Exception) {
+            Log.e("SectionActivity", "Error loading data: ${e.message}")
+            isLoading = false
         }
     }
 
@@ -385,7 +488,7 @@ fun SectionScreen(
                             "Section $sectionId Questions",
                             color = MaterialTheme.colorScheme.onPrimary
                         )
-                        if (!inspectionName.isNullOrBlank()) {
+                        if (inspectionName.isNotBlank()) {
                             Text(
                                 text = inspectionName,
                                 color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f),
@@ -451,6 +554,7 @@ fun SectionScreen(
                                     sectionId,
                                     questions,
                                     answers,
+                                    comments, // Pass comments to export function
                                     inspectionName,
                                     onPdfCreated = { filePath ->
                                         pdfFilePath = filePath
@@ -480,99 +584,6 @@ fun SectionScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-            ) {
-                // Section title and info
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer
-                    ),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        // Section icon/number
-                        Surface(
-                            shape = CircleShape,
-                            color = MaterialTheme.colorScheme.secondary,
-                            modifier = Modifier.size(40.dp)
-                        ) {
-                            Box(
-                                contentAlignment = Alignment.Center,
-                                modifier = Modifier.fillMaxSize()
-                            ) {
-                                Text(
-                                    text = "$sectionId",
-                                    color = MaterialTheme.colorScheme.onSecondary,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 18.sp
-                                )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.width(16.dp))
-
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = SectionData.sections.find { it.id == sectionId }?.title
-                                    ?: "Section $sectionId",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer
-                            )
-
-                            // Display section description
-                            Text(
-                                text = SectionData.sections.find { it.id == sectionId }?.description
-                                    ?: "",
-                                fontSize = 14.sp,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
-                            )
-                        }
-
-                        // Display inspection name badge if available
-                        if (!inspectionName.isNullOrBlank()) {
-                            AssistChip(
-                                onClick = { },
-                                label = {
-                                    Text(
-                                        text = inspectionName,
-                                        fontSize = 12.sp,
-                                        maxLines = 1
-                                    )
-                                },
-                                colors = AssistChipDefaults.assistChipColors(
-                                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                                    labelColor = MaterialTheme.colorScheme.primary
-                                ),
-                                modifier = Modifier.padding(start = 8.dp)
-                            )
-                        }
-                        {
-                            @Composable {
-                                Text(
-                                    text = inspectionName.toString(),
-                                    fontSize = 12.sp,
-                                    maxLines = 1
-                                )
-                            }
-                        }
-
-
-                    }
-                }
-            }
-
             if (isLoading) {
                 // Loading state
                 Box(
@@ -633,76 +644,213 @@ fun SectionScreen(
                     }
                 }
             } else {
-                // Questions with answers count summary
-                Row(
+                // Section title and questions list
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                        .fillMaxSize()
+                        .padding(16.dp)
                 ) {
-                    Text(
-                        text = "Questions (${questions.size})",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-
-                    // Answered vs total count
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
+                    // Section title and info
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer
+                        ),
+                        shape = RoundedCornerShape(16.dp)
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.CheckCircle,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.tertiary,
-                            modifier = Modifier.size(20.dp)
-                        )
-
-                        Text(
-                            text = " ${answers.size}/${questions.size} Answered",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-
-                // Questions list
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    itemsIndexed(questions) { index, question ->
-                        AnimatedVisibility(
-                            visible = true,
-                            enter = fadeIn(tween(durationMillis = 300, delayMillis = index * 30)) +
-                                    slideInVertically(
-                                        initialOffsetY = { 50 },
-                                        animationSpec = tween(
-                                            durationMillis = 300,
-                                            delayMillis = index * 30
-                                        )
-                                    )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            QuestionItem(
-                                question = question,
-                                answer = answers[question.question_number] ?: "",
-                                onAnswerChanged = { newAnswer ->
-                                    answers[question.question_number] = newAnswer
-                                },
-                                onGuideClicked = {
-                                    currentGuideText = question.guide_to_inspection
-                                    currentQuestionText =
-                                        "${question.question_number} ${question.question_text}"
-                                    showGuideDialog = true
+                            // Section icon/number
+                            Surface(
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.secondary,
+                                modifier = Modifier.size(40.dp)
+                            ) {
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier.fillMaxSize()
+                                ) {
+                                    Text(
+                                        text = "$sectionId",
+                                        color = MaterialTheme.colorScheme.onSecondary,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 18.sp
+                                    )
                                 }
+                            }
+
+                            Spacer(modifier = Modifier.width(16.dp))
+
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = SectionData.sections.find { it.id == sectionId }?.title
+                                        ?: "Section $sectionId",
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                                )
+
+                                // Display section description
+                                Text(
+                                    text = SectionData.sections.find { it.id == sectionId }?.description
+                                        ?: "",
+                                    fontSize = 14.sp,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f)
+                                )
+                            }
+                        }
+                    }
+
+                    // Questions with answers count summary
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "Questions (${questions.size})",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+
+                        // Answered vs total count
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.CheckCircle,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.tertiary,
+                                modifier = Modifier.size(20.dp)
+                            )
+
+                            Text(
+                                text = " ${answers.size}/${questions.size} Answered",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
 
-                    // Add some bottom padding for FAB
-                    item {
-                        Spacer(modifier = Modifier.height(80.dp))
+                    // Questions list
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        itemsIndexed(questions) { index, question ->
+                            AnimatedVisibility(
+                                visible = true,
+                                enter = fadeIn(tween(durationMillis = 300, delayMillis = index * 30)) +
+                                        slideInVertically(
+                                            initialOffsetY = { 50 },
+                                            animationSpec = tween(
+                                                durationMillis = 300,
+                                                delayMillis = index * 30
+                                            )
+                                        )
+                            ) {
+                                QuestionItem(
+                                    question = question,
+                                    answer = answers[question.question_number] ?: "",
+                                    comment = comments[question.question_number] ?: "", // Pass comment
+                                    onAnswerChanged = { newAnswer ->
+                                        answers[question.question_number] = newAnswer
+
+                                        // Special case: If question 1.1 is being answered (Vessel name), update the vessel field in the Inspection
+                                        if (sectionId == 1 && question.question_number == "1.1") {
+                                            // Launch a coroutine to update the vessel name in the inspection object
+                                            coroutineScope.launch {
+                                                // Get the current inspection
+                                                val existingInspection = repository.getInspection(inspectionName)
+                                                if (existingInspection != null) {
+                                                    // Create an updated inspection with the vessel name
+                                                    val updatedInspection = existingInspection.copy(vessel = newAnswer)
+                                                    // Save the updated inspection
+                                                    repository.saveInspection(updatedInspection)
+                                                    Log.d("SectionActivity", "Updated vessel name to: $newAnswer")
+                                                }
+                                            }
+                                        }
+
+                                        // Cancel previous save job if it exists
+                                        saveJob?.cancel()
+
+                                        // Create a new save job with debounce
+                                        saveJob = coroutineScope.launch {
+                                            // Wait for 500ms to avoid saving on each keystroke
+                                            delay(500)
+
+                                            // Save the response with comment
+                                            val saved = repository.updateResponse(
+                                                inspectionName = inspectionName,
+                                                sectionId = sectionId.toString(),
+                                                questionNumber = question.question_number,
+                                                answer = newAnswer,
+                                                comments = comments[question.question_number] ?: ""
+                                            )
+
+                                            // For specific fields that should update the main inspection object
+                                            if (saved && sectionId == 1 && (question.question_number == "1.1" || question.question_number == "1.22")) {
+                                                // Update vessel name or inspector name in the inspection object
+                                                repository.updateInspectionMetadata(inspectionName)
+                                            }
+
+                                            if (saved) {
+                                                Log.d("SectionActivity", "Saved answer for question ${question.question_number}")
+                                            } else {
+                                                Log.e("SectionActivity", "Failed to save answer for question ${question.question_number}")
+                                            }
+                                        }
+                                    },
+                                    onCommentChanged = { newComment ->
+                                        comments[question.question_number] = newComment
+
+                                        // Cancel previous save job if it exists
+                                        saveJob?.cancel()
+
+                                        // Create a new save job with debounce
+                                        saveJob = coroutineScope.launch {
+                                            // Wait for 500ms to avoid saving on each keystroke
+                                            delay(500)
+
+                                            // Save the response with comment
+                                            val saved = repository.updateResponse(
+                                                inspectionName = inspectionName,
+                                                sectionId = sectionId.toString(),
+                                                questionNumber = question.question_number,
+                                                answer = answers[question.question_number] ?: "",
+                                                comments = newComment
+                                            )
+
+                                            if (saved) {
+                                                Log.d("SectionActivity", "Saved comment for question ${question.question_number}")
+                                            } else {
+                                                Log.e("SectionActivity", "Failed to save comment for question ${question.question_number}")
+                                            }
+                                        }
+                                    },
+                                    onGuideClicked = {
+                                        currentGuideText = question.guide_to_inspection
+                                        currentQuestionText =
+                                            "${question.question_number} ${question.question_text}"
+                                        showGuideDialog = true
+                                    }
+                                )
+                            }
+                        }
+
+                        // Add some bottom padding for FAB
+                        item {
+                            Spacer(modifier = Modifier.height(80.dp))
+                        }
                     }
                 }
             }
