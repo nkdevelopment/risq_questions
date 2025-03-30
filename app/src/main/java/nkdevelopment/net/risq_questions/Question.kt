@@ -16,7 +16,8 @@ data class Question(
     val question_number: String,
     val question_text: String,
     val possible_answers: List<String>?,
-    val guide_to_inspection: String
+    val guide_to_inspection: String,
+    val photo: Boolean = false  // Added photo field with default value
 )
 
 /**

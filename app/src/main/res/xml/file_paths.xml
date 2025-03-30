@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
-    <external-files-path name="documents" path="Documents" />
-    <external-path name="external" path="." />
-    <files-path name="files" path="." />
+    <!-- For photos taken with camera -->
+    <external-path name="pdf_pictures" path="Android/data/nkdevelopment.net.risq_questions/files/Pictures" />
+    <external-files-path name="external_files" path="Pictures" />
+    <external-files-path name="pdf_files" path="." />
+
+    <!-- For PDF files -->
+    <external-path name="external_files" path="." />
+    <external-files-path name="documents" path="." />
+
+    <!-- Add cache paths for temporary files -->
     <cache-path name="cache" path="." />
+    <external-cache-path name="external_cache" path="." />
 </paths>

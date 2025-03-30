@@ -6,7 +6,8 @@
       "question_number": "1.1",
       "question_text": "Vessel’s name as it appears on the Certificate of Registry: (M)",
       "possible_answers": null,
-      "guide_to_inspection": ""
+      "guide_to_inspection": "",
+	  "photo": true
     },
     {
       "index": 2,
@@ -14,7 +15,8 @@
       "question_number": "1.2",
       "question_text": "Vessel’s IMO Number: (M)",
       "possible_answers": null,
-      "guide_to_inspection": ""
+      "guide_to_inspection": "",
+	  "photo": true
     },
     {
       "index": 3,
@@ -22,7 +24,8 @@
       "question_number": "1.3",
       "question_text": "Flag: (M)",
       "possible_answers": null,
-      "guide_to_inspection": ""
+      "guide_to_inspection": "",
+	  "photo": false
     },
     {
       "index": 4,
@@ -30,15 +33,17 @@
       "question_number": "1.4",
       "question_text": "Date the vessel was delivered: (M)",
       "possible_answers": null,
-      "guide_to_inspection": "Date of delivery can be found either in form A of the International Oil Pollution Prevention (IOPP) Certificate or Safety Construction Certificate."
-    },
+      "guide_to_inspection": "Date of delivery can be found either in form A of the International Oil Pollution Prevention (IOPP) Certificate or Safety Construction Certificate.",
+	  "photo": false    
+	},
     {
       "index": 5,
       "section": "Section 1: General Information",
       "question_number": "1.5",
       "question_text": "Date of layup, if any greater than three months since vessel’s delivery: N/A",
       "possible_answers": ["N/A"],
-      "guide_to_inspection": "If the vessel is out of service for 3 months or more, record the date; otherwise, this question should be answered N/A."
+      "guide_to_inspection": "If the vessel is out of service for 3 months or more, record the date; otherwise, this question should be answered N/A.",
+	  "photo": false
     },
     {
       "index": 6,
@@ -46,7 +51,8 @@
       "question_number": "1.6",
       "question_text": "Maximum assigned deadweight (metric tonnes):",
       "possible_answers": null,
-      "guide_to_inspection": ""
+      "guide_to_inspection": "",
+	  "photo": false
     },
     {
       "index": 7,
@@ -59,7 +65,8 @@
         "General cargo ship - carrying general and/or container cargos",
         "Container ship - carrying container cargos"
       ],
-      "guide_to_inspection": ""
+      "guide_to_inspection": "",
+	  "photo": false
     },
     {
       "index": 8,
@@ -70,7 +77,8 @@
         "Double Bottom-Single Skin Side",
         "Double Hull"
       ],
-      "guide_to_inspection": ""
+      "guide_to_inspection": "",
+	  "photo": false
     },
     {
       "index": 9,
@@ -87,7 +95,8 @@
         "At sea/river transit",
         "Repairs afloat"
       ],
-      "guide_to_inspection": ""
+      "guide_to_inspection": "",
+	  "photo": false
     },
     {
       "index": 10,
@@ -95,7 +104,8 @@
       "question_number": "1.10",
       "question_text": "Name of cargo being handled: N/A",
       "possible_answers": ["N/A"],
-      "guide_to_inspection": "This question should be answered N/A when the vessel is in ballast condition. Refer to shipper declaration and/or dangerous goods declaration to determine the correct name of the cargo."
+      "guide_to_inspection": "This question should be answered N/A when the vessel is in ballast condition. Refer to shipper declaration and/or dangerous goods declaration to determine the correct name of the cargo.",
+	  "photo": false
     },
     {
       "index": 11,
@@ -103,7 +113,8 @@
       "question_number": "1.11",
       "question_text": "Details of Port State Control inspection history for the last 12 months: (M) N/A",
       "possible_answers": ["N/A"],
-      "guide_to_inspection": "Inspector shall record the summary of significant deficiencies and, if the vessel was detained, detainable deficiencies. The records of Port State inspection should be retained on board for at least two years. If the vessel’s name and/or the vessel’s manager changed after the inspection, record the name of the vessel and/or vessel’s manager at the time of inspection."
+      "guide_to_inspection": "Inspector shall record the summary of significant deficiencies and, if the vessel was detained, detainable deficiencies. The records of Port State inspection should be retained on board for at least two years. If the vessel’s name and/or the vessel’s manager changed after the inspection, record the name of the vessel and/or vessel’s manager at the time of inspection.",
+	  "photo": false
     },
     {
       "index": 12,
@@ -114,7 +125,8 @@
         "IACS- Classification Society",
         "Non-IACS- Classification Society"
       ],
-      "guide_to_inspection": "If the vessel has dual class, select the name of the classification society issuing the statutory certificates from the drop-down list and the name of the second society in comments. If the vessel has changed class within the past 6 months, record the previous classification society and the date of change as a comment."
+      "guide_to_inspection": "If the vessel has dual class, select the name of the classification society issuing the statutory certificates from the drop-down list and the name of the second society in comments. If the vessel has changed class within the past 6 months, record the previous classification society and the date of change as a comment.",
+	  "photo": false
     },
     {
       "index": 13,
@@ -122,7 +134,8 @@
       "question_number": "1.13",
       "question_text": "Expiry date of class certificate: (M)",
       "possible_answers": null,
-      "guide_to_inspection": ""
+      "guide_to_inspection": "",
+	  "photo": true
     },
     {
       "index": 14,
@@ -130,7 +143,8 @@
       "question_number": "1.14",
       "question_text": "Date the last Special Survey was completed: (M) N/A",
       "possible_answers": ["N/A"],
-      "guide_to_inspection": ""
+      "guide_to_inspection": "",
+	  "photo": false
     },
     {
       "index": 15,
@@ -138,7 +152,8 @@
       "question_number": "1.15",
       "question_text": "Date of last routine dry dock: (M) N/A",
       "possible_answers": ["N/A"],
-      "guide_to_inspection": ""
+      "guide_to_inspection": "",
+	  "photo": false
     },
     {
       "index": 16,
@@ -146,7 +161,8 @@
       "question_number": "1.16",
       "question_text": "Date of unscheduled repair / and or dry dock: (M) N/A",
       "possible_answers": ["N/A"],
-      "guide_to_inspection": "Record the reason for unscheduled repair and/or dry dock."
+      "guide_to_inspection": "Record the reason for unscheduled repair and/or dry dock.",
+	  "photo": false
     },
     {
       "index": 17,
@@ -154,7 +170,8 @@
       "question_number": "1.17",
       "question_text": "EEDI: (M) N/A",
       "possible_answers": ["N/A"],
-      "guide_to_inspection": "Inspector shall record the Attained EEDI and EEXI from the Class Supplement to the International Energy Efficiency Certificate (IEEC)."
+      "guide_to_inspection": "Inspector shall record the Attained EEDI and EEXI from the Class Supplement to the International Energy Efficiency Certificate (IEEC).",
+	  "photo": false
     },
     {
       "index": 18,
@@ -162,7 +179,8 @@
       "question_number": "1.18",
       "question_text": "Date of last Flag inspection: (M) N/A",
       "possible_answers": ["N/A"],
-      "guide_to_inspection": "Inspector shall record the summary of significant deficiencies. Not all flag states require an annual inspection to be performed on the vessel."
+      "guide_to_inspection": "Inspector shall record the summary of significant deficiencies. Not all flag states require an annual inspection to be performed on the vessel.",
+	  "photo": false
     },
     {
       "index": 19,
@@ -170,7 +188,8 @@
       "question_number": "1.19",
       "question_text": "Name of the vessel’s manager: (M)",
       "possible_answers": null,
-      "guide_to_inspection": "The name of the vessel’s manager is recorded in the vessel’s Document of Compliance."
+      "guide_to_inspection": "The name of the vessel’s manager is recorded in the vessel’s Document of Compliance.",
+	  "photo": false
     },
     {
       "index": 20,
@@ -178,7 +197,8 @@
       "question_number": "1.20",
       "question_text": "Date the current vessel’s manager took over the vessel:",
       "possible_answers": null,
-      "guide_to_inspection": "The date of the vessel’s manager taking over the vessel is recorded in the Continuous Synopsis Record."
+      "guide_to_inspection": "The date of the vessel’s manager taking over the vessel is recorded in the Continuous Synopsis Record.",
+	  "photo": false
     },
     {
       "index": 21,
@@ -189,7 +209,8 @@
         "1st Visit: N/A",
         "2nd Visit: N/A"
       ],
-      "guide_to_inspection": "Record the position of the ship’s manager attending, e.g., Marine Superintendent, Engineer Superintendent or Naval Architect."
+      "guide_to_inspection": "Record the position of the ship’s manager attending, e.g., Marine Superintendent, Engineer Superintendent or Naval Architect.",
+	  "photo": false
     },
     {
       "index": 22,
@@ -197,7 +218,8 @@
       "question_number": "1.22",
       "question_text": "Name of the Rightship inspector:",
       "possible_answers": null,
-      "guide_to_inspection": ""
+      "guide_to_inspection": "",
+	  "photo": false
     },
     {
       "index": 23,
@@ -205,7 +227,8 @@
       "question_number": "1.23",
       "question_text": "Port of inspection: (V)",
       "possible_answers": null,
-      "guide_to_inspection": ""
+      "guide_to_inspection": "",
+	  "photo": false
     },
     {
       "index": 24,
@@ -213,7 +236,8 @@
       "question_number": "1.24",
       "question_text": "Date and time Rightship Inspector arrived at the vessel: (V)",
       "possible_answers": null,
-      "guide_to_inspection": ""
+      "guide_to_inspection": "",
+	  "photo": false
     },
     {
       "index": 25,
@@ -221,7 +245,8 @@
       "question_number": "1.25",
       "question_text": "Date and time Rightship inspector left the vessel: (V)",
       "possible_answers": null,
-      "guide_to_inspection": "Record the arrival and departure time/dates for each session of the inspection or when the inspection was carried out by more than one inspector."
+      "guide_to_inspection": "Record the arrival and departure time/dates for each session of the inspection or when the inspection was carried out by more than one inspector.",
+	  "photo": false
     },
     {
       "index": 26,
@@ -229,7 +254,8 @@
       "question_number": "1.26",
       "question_text": "Total time taken for inspection: (V)",
       "possible_answers": null,
-      "guide_to_inspection": ""
+      "guide_to_inspection": "",
+	  "photo": false
     },
     {
       "index": 27,
@@ -237,7 +263,8 @@
       "question_number": "1.27",
       "question_text": "Date the inspection was completed: (V)",
       "possible_answers": null,
-      "guide_to_inspection": "Record the actual time of inspection and exclude suspension of inspection for any reason, e.g., meals, PSC inspection, etc."
+      "guide_to_inspection": "Record the actual time of inspection and exclude suspension of inspection for any reason, e.g., meals, PSC inspection, etc.",
+	  "photo": false
     },
     {
       "index": 28,
@@ -248,7 +275,8 @@
         "International Group of P&I",
         "Non-International Group of P&I"
       ],
-      "guide_to_inspection": "The current list of P&I Clubs that are members of the International Group is provided below.\n > American Steamship Owners Mutual Protection and Indemnity Association, Inc.\n > American Club (Europe)\n > The Britannia Steam Ship Insurance Association Limited\n > The Britannia Steam Ship Insurance Association Europe\n > Gard P.&I. (Bermuda) Limited\n > Assuranceforeningen Gard (Gjensidig)\n > The Japan Ship Owners’ Mutual Protection & Indemnity Association\n > The London Steam-Ship Owners’ Mutual Insurance Association Limited\n > The London P&I Insurance Company (Europe) Limited\n > NorthStandard Limited\n > NorthStandard EU DAC\n > The Standard Club UK Ltd\n > The Standard Club Asia Ltd\n > The Standard Club Ireland DAC\n > The Shipowners’ Mutual Protection & Indemnity Association (Luxembourg)\n > Assuranceforeningen Skuld (Gjensidig)\n > Skuld Mutual Protection and Indemnity Association (Bermuda) Ltd.\n > The Steamship Mutual Underwriting Association (Bermuda) Limited\n > Steamship Mutual Underwriting Association Ltd.\n > Steamship Mutual Underwriting Association (Europe) Limited\n > Sveriges Ångfartygs Assurans Förening / The Swedish Club\n > The United Kingdom Mutual Steam Ship Assurance Association Limited\n > UK P&I (Bermuda)\n > UK P&I (UKNV)\n > The West of England Ship Owners Mutual Insurance Association (Luxembourg)"
+      "guide_to_inspection": "The current list of P&I Clubs that are members of the International Group is provided below.\n > American Steamship Owners Mutual Protection and Indemnity Association, Inc.\n > American Club (Europe)\n > The Britannia Steam Ship Insurance Association Limited\n > The Britannia Steam Ship Insurance Association Europe\n > Gard P.&I. (Bermuda) Limited\n > Assuranceforeningen Gard (Gjensidig)\n > The Japan Ship Owners’ Mutual Protection & Indemnity Association\n > The London Steam-Ship Owners’ Mutual Insurance Association Limited\n > The London P&I Insurance Company (Europe) Limited\n > NorthStandard Limited\n > NorthStandard EU DAC\n > The Standard Club UK Ltd\n > The Standard Club Asia Ltd\n > The Standard Club Ireland DAC\n > The Shipowners’ Mutual Protection & Indemnity Association (Luxembourg)\n > Assuranceforeningen Skuld (Gjensidig)\n > Skuld Mutual Protection and Indemnity Association (Bermuda) Ltd.\n > The Steamship Mutual Underwriting Association (Bermuda) Limited\n > Steamship Mutual Underwriting Association Ltd.\n > Steamship Mutual Underwriting Association (Europe) Limited\n > Sveriges Ångfartygs Assurans Förening / The Swedish Club\n > The United Kingdom Mutual Steam Ship Assurance Association Limited\n > UK P&I (Bermuda)\n > UK P&I (UKNV)\n > The West of England Ship Owners Mutual Insurance Association (Luxembourg)",
+	  "photo": false
     }
   ]
 }
